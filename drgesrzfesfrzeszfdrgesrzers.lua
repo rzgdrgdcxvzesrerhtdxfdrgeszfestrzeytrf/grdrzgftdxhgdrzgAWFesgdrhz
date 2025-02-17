@@ -1343,37 +1343,46 @@ end
 function Open_doorsL()
       if functions.AutoOpenDoorsF then
             while functions.AutoOpenDoorsF do
-                  local Folder_Map = workspace:FindFirstChild("Map")
-                  if not Folder_Map then return end
-                  for _, a in pairs(Folder_Map.Doors:GetChildren()) do
-                        if me.Character and me.Character:FindFirstChild("HumanoidRootPart") and (me.Character:FindFirstChild("HumanoidRootPart").Position - a:FindFirstChild("DoorBase").Position).Magnitude <= 30 then
-                              if a:FindFirstChild("Values"):FindFirstChild("Locked").Value == true then
-                                    a:FindFirstChild("Events"):FindFirstChild("Toggle"):FireServer("Unlock", a.Lock)
-                                    local b1 = "Open"
-                                    local b2
-                                    local KNOB1 = a:FindFirstChild("Knob1")
-                                    local KNOB2 = a:FindFirstChild("Knob2")
-                                    local KNOB1pos = (me.Character:FindFirstChild("HumanoidRootPart").Position - KNOB1.Position).Magnitude
-                                    local KNOB2pos = (me.Character:FindFirstChild("HumanoidRootPart").Position - KNOB2.Position).Magnitude
-                                    b2 = (KNOB1pos < KNOB2pos) and KNOB1 or KNOB2
-                                    a:FindFirstChild("Events"):FindFirstChild("Toggle"):FireServer(b1, b2)
-                              else
-                                    for _, i in pairs(Folder_Map.Doors:GetChildren()) do
-                                          if me.Character and me.Character:FindFirstChild("HumanoidRootPart") and (me.Character:FindFirstChild("HumanoidRootPart").Position - i:FindFirstChild("DoorBase").Position).Magnitude <= 20 then
-                                                local opened = i:FindFirstChild("Values"):FindFirstChild("Open")
-                                                if opened and opened.Value == false then
-                                                      local a1 = "Open"
-                                                      local a2
-                                                      local knob1 = i:FindFirstChild("Knob1")
-                                                      local knob2 = i:FindFirstChild("Knob2")
-                                                      local knob1pos = (me.Character:FindFirstChild("HumanoidRootPart").Position - knob1.Position).Magnitude
-                                                      local knob2pos = (me.Character:FindFirstChild("HumanoidRootPart").Position - knob2.Position).Magnitude
-                                                      a2 = (knob1pos < knob2pos) and knob1 or knob2
-                                                      i:FindFirstChild("Events"):FindFirstChild("Toggle"):FireServer(a1, a2)
-                                                end
-                                          end
+                  function GetDoor()
+                        local Folder_Map = workspace:FindFirstChild("Map"):FindFirstChild("Doors")
+                        
+                        local dist = 20
+                        
+                        for _, a in pairs(Folder_Map:GetChildren()) do
+                              local mychar = me.Character
+                              local hrp = mychar:FindFirstChild("HumanoidRootPart")
+                              if not mychar or not hrp then return end
+                              if a:FindFirstChild("DoorBase") then
+                                    local distance = (hrp.Position - a:FindFirstChild("DoorBase").Position).Magnitude
+                                    if distance < dist then
+                                          dist = distance
+                                          return a
                                     end
-                              end 
+                              end
+                        end
+                        dist = 20
+                  end
+                  
+                  local door = GetDoor()
+                  local mychar = me.Character
+                  local hrp = mychar:FindFirstChild("HumanoidRootPart")
+                  if not mychar or not hrp then return end
+                  if door then
+                        local values = door:FindFirstChild("Values")
+                        local events = door:FindFirstChild("Events")
+                        if values:FindFirstChild("Locked").Value == true then
+                              events:FindFirstChild("Toggle"):FireServer("Unlock", door.Lock)
+                              print("unlocked")
+                        elseif values:FindFirstChild("Locked").Value == false and values:FindFirstChild("Open").Value == false then
+                              local a1 = "Open"
+                              local a2
+                              local knob1 = door:FindFirstChild("Knob1")
+                              local knob2 = door:FindFirstChild("Knob2")
+                              local knob1pos = (hrp.Position - knob1.Position).Magnitude
+                              local knob2pos = (hrp.Position - knob2.Position).Magnitude
+                              a2 = (knob1pos < knob2pos) and knob1 or knob2
+                              events:FindFirstChild("Toggle"):FireServer(a1, a2)
+                              print("opened")
                         end
                   end
                   run.RenderStepped:Wait()
@@ -1451,6 +1460,20 @@ end
 function nofalldamageL()
       local folder = workspace:FindFirstChild("Characters")
       local mychar = me.Character
+      mychar.ChildRemoved:Connect(function()
+            for _, a in pairs(mychar:GetChildren()) do
+                  local ffcheck = mychar:FindFirstChildOfClass("ForceField")
+                  if not ffcheck then
+                        if functions.nofalldamageF then
+                              local ff = Instance.new("ForceField")
+                              ff.Parent = mychar
+                              ff.Visible = false
+                        end
+                  elseif ffcheck and ffcheck.Visible == false then
+                        continue
+                  end
+            end
+      end)
       if mychar then
             if functions.nofalldamageF then
                   local ff = Instance.new("ForceField")
@@ -1465,6 +1488,18 @@ function nofalldamageL()
                   ff.Parent = char
                   ff.Visible = false
             end
+            char.ChildRemoved:Connect(function()
+                  for _, a in pairs(char:GetChildren()) do
+                        local ffcheck = char:FindFirstChildOfClass("ForceField")
+                        if not ffcheck then
+                              local ff = Instance.new("ForceField")
+                              ff.Parent = char
+                              ff.Visible = false
+                        elseif ffcheck and ffcheck.Visible == false then
+                              continue
+                        end
+                  end
+            end)
       end)
       if functions.nofalldamageF == false then
             local mychar = me.Character
@@ -1672,7 +1707,7 @@ function meleeauraL()
                                           local hrp = char:FindFirstChild("HumanoidRootPart")
                                           if hrp then
                                                 local distance = (myhrp.Position - hrp.Position).Magnitude
-                                                if distance < maxdist and a.Character:FindFirstChildOfClass("Humanoid").Health > 15 and not char:FindFirstChildOfClass("ForceField") then -- искать близжайшего игрока
+                                                if distance < maxdist and a.Character:FindFirstChildOfClass("Humanoid").Health > 15 and not char:FindFirstChildOfClass("ForceField") then
                                                       Attack(char)
                                                 end
                                           end
@@ -2002,7 +2037,7 @@ function ConsoleText(text, typeF)
 end
 
 Commands.cmds()
-ConsoleText("[Version 1.01]", "text")
+ConsoleText("[Version 1.02]", "text")
 
 ocmenukeybindLoad.MouseEnter:Connect(function()
       remotes.OCmenukeybind = true
