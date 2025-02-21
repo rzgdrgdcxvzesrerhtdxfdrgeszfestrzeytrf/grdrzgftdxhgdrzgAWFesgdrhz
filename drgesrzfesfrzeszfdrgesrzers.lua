@@ -12,6 +12,7 @@ local ignore_binds = {Enum.KeyCode.W, Enum.KeyCode.A, Enum.KeyCode.D, Enum.KeyCo
 
 local status = ""
 
+local PlayersList = {}
 local WhiteList = {}
 
 local FOLDER = {
@@ -93,8 +94,8 @@ local SectionSettings = {
             Distance = 20
       },
       RageBot = {
-            CheckTeam = nil,
-            CheckWhiteList = nil
+            CheckTeam = false,
+            CheckWhiteList = false
       },
       RocketControl = {
             Speed = 200
@@ -345,6 +346,72 @@ uiplist.PaddingTop = UDim.new(0, 10)
 local Menus = Instance.new("Folder")
 Menus.Parent = mainframe
 Menus.Name = "Menus"
+
+local MenuWhite = Instance.new("Frame")
+MenuWhite.Parent = Gui
+MenuWhite.Name = "Menu"
+MenuWhite.BackgroundTransparency = 1
+MenuWhite.Position = UDim2.new(0.338, 0, 0.316, 0)
+MenuWhite.Size = UDim2.new(0.324, 0, 0.367, 0)
+MenuWhite.Visible = false
+
+local HideButton = Instance.new("TextButton")
+HideButton.Parent = MenuWhite
+HideButton.Name = "Hide"
+HideButton.BackgroundColor3 = Color3.new(0.0705882, 0.0705882, 0.0705882)
+HideButton.Position = UDim2.new(0.902, 0, -0.334, 0)
+HideButton.Size = UDim2.new(0, 30, 0, 30)
+HideButton.TextScaled = true
+HideButton.TextColor3 = Color3.new(1, 1, 1)
+HideButton.Text = "X"
+HideButton.Visible = true
+
+local uichidebutton = Instance.new("UICorner")
+uichidebutton.Parent = HideButton
+uichidebutton.CornerRadius = UDim.new(0, 4)
+
+local uishidebutton = Instance.new("UIStroke")
+uishidebutton.Parent = HideButton
+uishidebutton.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+uishidebutton.Color = Color3.new(1, 0, 0)
+uishidebutton.LineJoinMode = Enum.LineJoinMode.Round
+uishidebutton.Thickness = 1
+
+local Ghosts = Instance.new("ImageLabel")
+Ghosts.Parent = MenuWhite
+Ghosts.BackgroundColor3 = Color3.new(0, 0, 0)
+Ghosts.Position = UDim2.new(0.029, 0, -0.184, 0)
+Ghosts.Size = UDim2.new(0.94, 0, 1.633, 0)
+Ghosts.Image = "rbxassetid://121742762213177"
+Ghosts.ImageColor3 = Color3.new(0.478, 0.478, 0.478)
+Ghosts.ImageTransparency = 0.9
+
+local uicghosts = Instance.new("UICorner")
+uicghosts.CornerRadius = UDim.new(0, 4)
+uicghosts.Parent = Ghosts
+
+local uisghosts = Instance.new("UIStroke")
+uisghosts.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+uisghosts.Color = Color3.new(0, 0, 0)
+uisghosts.Thickness = 6
+uisghosts.Transparency = 0.4
+uisghosts.Parent = Ghosts
+
+local scroll = Instance.new("ScrollingFrame")
+scroll.Parent = Ghosts
+scroll.BackgroundTransparency = 1
+scroll.Size = UDim2.new(1, 0, 1, 0)
+scroll.ScrollBarThickness = 6
+scroll.CanvasSize = UDim2.new(0, 0, 5, 0)
+
+local uilscroll = Instance.new("UIListLayout")
+uilscroll.Parent = scroll
+uilscroll.Padding = UDim.new(0, 30)
+uilscroll.HorizontalAlignment = Enum.HorizontalAlignment.Center
+
+local uipscroll = Instance.new("UIPadding")
+uipscroll.PaddingTop = UDim.new(0, 15)
+uipscroll.Parent = scroll
 
 function Library()
       local Tabs = {}
@@ -1019,8 +1086,8 @@ local neleeaurapos = Functions:MakeSectionSlider(SECTION4, "Distance", UDim2.new
 local ragebotTurn = Functions:MakeSectionButton(SECTION5, "RageBot", "Rage bot", UDim2.new(0.03, 0, 0.04, 0), UDim2.new(0, 160, 0, 32), functions, "RagebotF", function()
       RagebotL()
 end)
-local ragebotteamcheck = Functions:MakeSectionCheckButton(SECTION5, "CheckTeam", "Check team", UDim2.new(0.029, 0, 0.365, 0))
-local ragebotwhitelistcheck = Functions:MakeSectionCheckButton(SECTION5, "CheckList", "Check white list", UDim2.new(0.029, 0, 0.677, 0))
+local ragebotteamcheck = Functions:MakeSectionCheckButton(SECTION5, "CheckTeam", "Check team", UDim2.new(0.029, 0, 0.365, 0), SectionSettings.RageBot, "CheckTeam", false, "", nil, nil, nil)
+local ragebotwhitelistcheck = Functions:MakeSectionCheckButton(SECTION5, "CheckList", "Check white list", UDim2.new(0.029, 0, 0.677, 0), SectionSettings.RageBot, "CheckWhiteList", false, "", nil, nil, nil)
 
 --// esp in section \\--
 local espTurn = Functions:MakeSectionButton(SECTION6, "ESP", "ESP", UDim2.new(0.03, 0, 0.022, 0), UDim2.new(0, 160, 0, 32), functions, "EspF")
@@ -1058,6 +1125,8 @@ local INDEX2 = {
       {button = aimbotwhitelistcheck, func = SectionSettings.AimBot, name = "CheckWhiteList"},
       {button = aimbotcheckdist, func = SectionSettings.AimBot, name = "CheckDistance"},
       {button = aimbotvelocity, func = SectionSettings.AimBot, name = "Velocity"},
+      {button = ragebotwhitelistcheck, func = SectionSettings.RageBot, name = "CheckWhiteList"},
+      {button = ragebotteamcheck, func = SectionSettings.RageBot, name = "CheckTeam"},
       {button = espChams, func = SectionSettings.ESP, name = "Chams"},
       {button = espTool, func = SectionSettings.ESP, name = "Tools"},
       {button = espScraps, func = SectionSettings.ESP, name = "Scraps"},
@@ -1135,6 +1204,30 @@ uisocmenukeybindload.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
 uisocmenukeybindload.Color = Color3.new(1, 1, 1)
 uisocmenukeybindload.LineJoinMode = Enum.LineJoinMode.Round
 uisocmenukeybindload.Thickness = 1
+
+local WhiteAdd = Instance.new("TextLabel")
+WhiteAdd.Parent = SettingsMenu
+WhiteAdd.Name = "WhiteList"
+WhiteAdd.BackgroundColor3 = Color3.new(0.196078, 0.196078, 0.196078)
+WhiteAdd.Position = UDim2.new(0.016, 0, 0.104, 0)
+WhiteAdd.Size = UDim2.new(0, 194, 0, 32)
+WhiteAdd.TextScaled = true
+WhiteAdd.TextColor3 = Color3.new(1, 1, 1)
+WhiteAdd.Text = "White list"
+WhiteAdd.Visible = true
+
+local uicwhiteadd = Instance.new("UICorner")
+uicwhiteadd.Parent = WhiteAdd
+uicwhiteadd.CornerRadius = UDim.new(0, 8)
+
+local WhitePress = Instance.new("ImageButton")
+WhitePress.Parent = WhiteAdd
+WhitePress.Name = "press"
+WhitePress.BackgroundTransparency = 1
+WhitePress.Position = UDim2.new(1.192, 0, 0, 0)
+WhitePress.Size = UDim2.new(0, 32, 0, 32)
+WhitePress.Image = "rbxassetid://2769398451"
+WhitePress.Visible = true
 
 local skinslistText = Instance.new("TextLabel")
 skinslistText.Parent = SkinsMenu
@@ -1328,6 +1421,7 @@ local Commands = {
             ConsoleText("")
       end,
       close = function()
+            if OCmenubutton then OCmenubutton:Destroy() end
             Gui:Destroy()
       end,
 }
@@ -1343,46 +1437,58 @@ end
 function Open_doorsL()
       if functions.AutoOpenDoorsF then
             while functions.AutoOpenDoorsF do
-                  function GetDoor()
-                        local Folder_Map = workspace:FindFirstChild("Map"):FindFirstChild("Doors")
-                        
-                        local dist = 20
-                        
-                        for _, a in pairs(Folder_Map:GetChildren()) do
-                              local mychar = me.Character
-                              local hrp = mychar:FindFirstChild("HumanoidRootPart")
-                              if not mychar or not hrp then return end
-                              if a:FindFirstChild("DoorBase") then
-                                    local distance = (hrp.Position - a:FindFirstChild("DoorBase").Position).Magnitude
+                  if not me.Character or not me.Character:FindFirstChild("HumanoidRootPart") then
+                        me.Character = me.Character or me.CharacterAdded:Wait()
+                        me.Character:WaitForChild("HumanoidRootPart")
+                  end
+                  local hrp = me.Character:FindFirstChild("HumanoidRootPart")
+                  if not hrp then
+                        run.RenderStepped:Wait()
+                        continue
+                  end
+
+                  local function GetDoor()
+                        local mapFolder = workspace:FindFirstChild("Map")
+                        if not mapFolder then return nil end
+                        local folderDoors = mapFolder:FindFirstChild("Doors")
+                        if not folderDoors then return nil end
+
+                        local closestDoor, dist = nil, 15
+                        for _, door in pairs(folderDoors:GetChildren()) do
+                              local doorBase = door:FindFirstChild("DoorBase")
+                              if doorBase then
+                                    local distance = (hrp.Position - doorBase.Position).Magnitude
                                     if distance < dist then
                                           dist = distance
-                                          return a
+                                          closestDoor = door
                                     end
                               end
                         end
-                        dist = 20
+                        return closestDoor
                   end
-                  
+
                   local door = GetDoor()
-                  local mychar = me.Character
-                  local hrp = mychar:FindFirstChild("HumanoidRootPart")
-                  if not mychar or not hrp then return end
                   if door then
                         local values = door:FindFirstChild("Values")
                         local events = door:FindFirstChild("Events")
-                        if values:FindFirstChild("Locked").Value == true then
-                              events:FindFirstChild("Toggle"):FireServer("Unlock", door.Lock)
-                              print("unlocked")
-                        elseif values:FindFirstChild("Locked").Value == false and values:FindFirstChild("Open").Value == false then
-                              local a1 = "Open"
-                              local a2
-                              local knob1 = door:FindFirstChild("Knob1")
-                              local knob2 = door:FindFirstChild("Knob2")
-                              local knob1pos = (hrp.Position - knob1.Position).Magnitude
-                              local knob2pos = (hrp.Position - knob2.Position).Magnitude
-                              a2 = (knob1pos < knob2pos) and knob1 or knob2
-                              events:FindFirstChild("Toggle"):FireServer(a1, a2)
-                              print("opened")
+                        if values and events then
+                              local locked = values:FindFirstChild("Locked")
+                              local openValue = values:FindFirstChild("Open")
+                              local toggleEvent = events:FindFirstChild("Toggle")
+                              if locked and openValue and toggleEvent then
+                                    if locked.Value == true then
+                                          toggleEvent:FireServer("Unlock", door.Lock)
+                                    elseif locked.Value == false and openValue.Value == false then
+                                          local knob1 = door:FindFirstChild("Knob1")
+                                          local knob2 = door:FindFirstChild("Knob2")
+                                          if knob1 and knob2 then
+                                                local knob1pos = (hrp.Position - knob1.Position).Magnitude
+                                                local knob2pos = (hrp.Position - knob2.Position).Magnitude
+                                                local chosenKnob = (knob1pos < knob2pos) and knob1 or knob2
+                                                toggleEvent:FireServer("Open", chosenKnob)
+                                          end
+                                    end
+                              end
                         end
                   end
                   run.RenderStepped:Wait()
@@ -1458,53 +1564,22 @@ function infstaminaL()
 end
 
 function nofalldamageL()
-      local folder = workspace:FindFirstChild("Characters")
-      local mychar = me.Character
-      mychar.ChildRemoved:Connect(function()
-            for _, a in pairs(mychar:GetChildren()) do
-                  local ffcheck = mychar:FindFirstChildOfClass("ForceField")
-                  if not ffcheck then
-                        if functions.nofalldamageF then
-                              local ff = Instance.new("ForceField")
-                              ff.Parent = mychar
-                              ff.Visible = false
-                        end
-                  elseif ffcheck and ffcheck.Visible == false then
-                        continue
-                  end
-            end
-      end)
-      if mychar then
-            if functions.nofalldamageF then
+      if functions.nofalldamageF == true then
+            if me.Character then
                   local ff = Instance.new("ForceField")
-                  ff.Parent = mychar
+                  ff.Parent = me.Character
                   ff.Visible = false
             end
-      end
-      me.CharacterAdded:Connect(function(char)
-            repeat wait() until char and char.Parent
-            if functions.nofalldamageF then
-                  local ff = Instance.new("ForceField")
-                  ff.Parent = char
-                  ff.Visible = false
-            end
-            char.ChildRemoved:Connect(function()
-                  for _, a in pairs(char:GetChildren()) do
-                        local ffcheck = char:FindFirstChildOfClass("ForceField")
-                        if not ffcheck then
-                              local ff = Instance.new("ForceField")
-                              ff.Parent = char
-                              ff.Visible = false
-                        elseif ffcheck and ffcheck.Visible == false then
-                              continue
-                        end
+            me.CharacterAdded:Connect(function(char)
+                  if functions.nofalldamageF and char and char:WaitForChild("HumanoidRootPart") and char:WaitForChild("Humanoid") then
+                        local ff = Instance.new("ForceField")
+                        ff.Parent = char
+                        ff.Visible = false
                   end
             end)
-      end)
-      if functions.nofalldamageF == false then
-            local mychar = me.Character
-            if mychar then
-                  for _, a in pairs(mychar:GetChildren()) do
+      else
+            if me.Character then
+                  for _, a in pairs(me.Character:GetChildren()) do
                         if a:IsA("ForceField") and a.Visible == false then
                               a:Destroy()
                         end
@@ -1528,6 +1603,15 @@ function RagebotL()
 
             for _, player in pairs(plrs:GetPlayers()) do
                   if player ~= me and player.Character and player.Character:FindFirstChild("HumanoidRootPart") and player.Character:FindFirstChildOfClass("Humanoid").Health > 15 and not player.Character:FindFirstChildOfClass("ForceField") then
+                        
+                        if SectionSettings.RageBot.CheckTeam and player.Team == me.Team then
+                              continue
+                        end
+                        
+                        if SectionSettings.RageBot.CheckWhiteList and table.find(WhiteList, player) then
+                              continue
+                        end
+                        
                         local enemyPos = player.Character.HumanoidRootPart.Position
                         local distance = (enemyPos - me.Character.HumanoidRootPart.Position).Magnitude
 
@@ -2037,7 +2121,7 @@ function ConsoleText(text, typeF)
 end
 
 Commands.cmds()
-ConsoleText("[Version 1.02]", "text")
+ConsoleText("[Version 1.03]", "text")
 
 ocmenukeybindLoad.MouseEnter:Connect(function()
       remotes.OCmenukeybind = true
@@ -2148,6 +2232,115 @@ if OCmenubutton ~= nil then
             end
       end)
 end
+
+function UpdateWhite()
+      function Update(player)
+            if player == me then return end
+
+            local MakeFrame
+
+            if table.find(PlayersList, player) then
+                  MakeFrame = Instance.new("Frame")
+                  MakeFrame.Parent = scroll
+                  MakeFrame.Name = player.Name
+                  MakeFrame.BackgroundColor3 = Color3.new(0.07, 0.07, 0.07)
+                  MakeFrame.Size = UDim2.new(0, 236, 0, 27)
+
+                  local uisframe = Instance.new("UIStroke")
+                  uisframe.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+                  uisframe.Color = Color3.new(0.14, 0.14, 0.14)
+                  uisframe.Thickness = 3
+                  uisframe.Transparency = 0.4
+                  uisframe.Parent = MakeFrame
+
+                  local Name = Instance.new("TextLabel")
+                  Name.Parent = MakeFrame
+                  Name.Name = "Name"
+                  Name.BackgroundTransparency = 1
+                  Name.Position = UDim2.new(0.1, 0, 0, 0)
+                  Name.Size = UDim2.new(0, 200, 0, 27)
+                  Name.Font = Enum.Font.Roboto
+                  Name.TextColor3 = Color3.new(1, 1, 1)
+                  Name.TextScaled = true
+                  Name.Text = player.Name
+
+                  local CheckButton = Instance.new("TextButton")
+                  CheckButton.Parent = MakeFrame
+                  CheckButton.BackgroundColor3 = Color3.new(0.14, 0.14, 0.14)
+                  CheckButton.Position = UDim2.new(1.119, 0, 0, 0)
+                  CheckButton.Size = UDim2.new(0, 26, 0, 26)
+                  CheckButton.Text = ""
+
+                  local uischeckbutton = Instance.new("UIStroke")
+                  uischeckbutton.Parent = CheckButton
+                  uischeckbutton.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+                  uischeckbutton.Color = Color3.new(0.14, 0.14, 0.14)
+                  uischeckbutton.Thickness = 3
+                  uischeckbutton.Transparency = 0.4
+
+                  local CheckImage = Instance.new("ImageLabel")
+                  CheckImage.Parent = CheckButton
+                  CheckImage.BackgroundTransparency = 1
+                  CheckImage.Size = UDim2.new(1, 0, 1, 0)
+                  CheckImage.Image = "rbxassetid://6218581738"
+                  CheckImage.Visible = false
+
+                  if table.find(WhiteList, player) then
+                        CheckImage.Visible = true
+                  else
+                        CheckImage.Visible = false
+                  end
+
+                  CheckButton.MouseButton1Click:Connect(function()
+                        if not table.find(WhiteList, player) then
+                              table.insert(WhiteList, player)
+                              CheckImage.Visible = true
+                        else
+                              local check = table.find(WhiteList, player)
+                              table.remove(WhiteList, check)
+                              CheckImage.Visible = false
+                        end
+                  end)
+            else
+                  if scroll:FindFirstChild(player.Name) then scroll:FindFirstChild(player.Name):Destroy() end
+            end
+
+            return MakeFrame
+      end
+
+      for _, a in pairs(plrs:GetPlayers()) do
+            table.insert(PlayersList, a)
+            Update(a)
+      end
+
+      plrs.PlayerAdded:Connect(function(plr)
+            table.insert(PlayersList, plr)
+            Update(plr)
+      end)
+
+      plrs.PlayerRemoving:Connect(function(index)
+            local find = table.find(PlayersList, index)
+            local find2 = table.find(WhiteList, index)
+
+            if find then
+                  table.remove(PlayersList, find)
+            end
+            if find2 then
+                  table.remove(WhiteList, find2)
+            end
+            Update(index)
+      end)
+end
+
+UpdateWhite()
+
+WhitePress.MouseButton1Click:Connect(function()
+      MenuWhite.Visible = true
+end)
+
+HideButton.MouseButton1Click:Connect(function()
+      MenuWhite.Visible = false
+end)
 
 function UpdateFunctions()
       FullbrightL()
