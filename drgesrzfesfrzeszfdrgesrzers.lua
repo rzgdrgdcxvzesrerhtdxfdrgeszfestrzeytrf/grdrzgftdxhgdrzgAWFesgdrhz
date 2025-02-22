@@ -80,8 +80,8 @@ local SectionSettings = {
             DrawColor = Color3.new(1, 0, 0),
             TargetPart = "Head",
             CheckWall = nil,
-            CheckTeam = nil,
-            CheckWhiteList = nil,
+            CheckTeam = false,
+            CheckWhiteList = false,
             CheckDistance = nil,
             Velocity = nil
       },
