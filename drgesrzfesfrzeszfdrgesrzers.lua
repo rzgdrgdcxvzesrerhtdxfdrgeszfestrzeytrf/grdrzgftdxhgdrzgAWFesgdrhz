@@ -88,9 +88,9 @@ local SectionSettings = {
       MeleeAura = {
             ShowAnim = nil,
             TargetPart = "Head",
-            CheckWall = nil,
-            CheckTeam = nil,
-            CheckWhiteList = nil,
+            AutoAttack = nil,
+            CheckTeam = false,
+            CheckWhiteList = false,
             Distance = 20
       },
       RageBot = {
@@ -402,7 +402,7 @@ scroll.Parent = Ghosts
 scroll.BackgroundTransparency = 1
 scroll.Size = UDim2.new(1, 0, 1, 0)
 scroll.ScrollBarThickness = 6
-scroll.CanvasSize = UDim2.new(0, 0, 5, 0)
+scroll.CanvasSize = UDim2.new(0, 0, 10, 0)
 
 local uilscroll = Instance.new("UIListLayout")
 uilscroll.Parent = scroll
@@ -1075,11 +1075,11 @@ local rocketcontrolspeed = Functions:MakeSectionSlider(SECTION3, "Speed", UDim2.
 local meleeauraTurn = Functions:MakeSectionButton(SECTION4, "meleeaura", "Melee aura", UDim2.new(0.03, 0, 0.022, 0), UDim2.new(0, 160, 0, 32), functions, "meleeauraF", function()
       meleeauraL()
 end)
-local meleeaurashomanim = Functions:MakeSectionCheckButton(SECTION4, "ShowAnim", "Show anim", UDim2.new(0.029, 0, 0.182, 0))
+local meleeaurashomanim = Functions:MakeSectionCheckButton(SECTION4, "ShowAnim", "Show anim", UDim2.new(0.029, 0, 0.182, 0), SectionSettings.MeleeAura, "ShowAnim", false, "", nil, nil, nil)
 local meleeauratargetpart = Functions:MakeSectionClickButton(SECTION4, "TargetPart", "Target part", UDim2.new(0.029, 0, 0.329, 0), UDim2.new(0, 160, 0, 32))
-local meleeauracheckwall = Functions:MakeSectionCheckButton(SECTION4, "AutoAttack", "Auto attack", UDim2.new(0.029, 0, 0.468, 0))
-local meleeaurateamcheck = Functions:MakeSectionCheckButton(SECTION4, "CheckTeam", "Check team", UDim2.new(0.029, 0, 0.6, 0))
-local meleeaurawhitelistcheck = Functions:MakeSectionCheckButton(SECTION4, "CheckList", "Check white list", UDim2.new(0.029, 0, 0.739, 0))
+local meleeauraautoattack = Functions:MakeSectionCheckButton(SECTION4, "AutoAttack", "Auto attack", UDim2.new(0.029, 0, 0.468, 0))
+local meleeaurateamcheck = Functions:MakeSectionCheckButton(SECTION4, "CheckTeam", "Check team", UDim2.new(0.029, 0, 0.6, 0), SectionSettings.MeleeAura, "CheckTeam", false, "", nil, nil, nil)
+local meleeaurawhitelistcheck = Functions:MakeSectionCheckButton(SECTION4, "CheckList", "Check white list", UDim2.new(0.029, 0, 0.739, 0), SectionSettings.MeleeAura, "CheckWhiteList", false, "", nil, nil, nil)
 local neleeaurapos = Functions:MakeSectionSlider(SECTION4, "Distance", UDim2.new(0.029, 0, 0.875, 0))
 
 --// rage-bot in section \\--
@@ -1127,6 +1127,9 @@ local INDEX2 = {
       {button = aimbotvelocity, func = SectionSettings.AimBot, name = "Velocity"},
       {button = ragebotwhitelistcheck, func = SectionSettings.RageBot, name = "CheckWhiteList"},
       {button = ragebotteamcheck, func = SectionSettings.RageBot, name = "CheckTeam"},
+      {button = meleeaurashomanim, func = SectionSettings.MeleeAura, name = "ShowAnim"},
+      {button = meleeaurateamcheck, func = SectionSettings.MeleeAura, name = "CheckTeam"},
+      {button = meleeaurawhitelistcheck, func = SectionSettings.MeleeAura, name = "CheckWhiteList"},
       {button = espChams, func = SectionSettings.ESP, name = "Chams"},
       {button = espTool, func = SectionSettings.ESP, name = "Tools"},
       {button = espScraps, func = SectionSettings.ESP, name = "Scraps"},
@@ -1598,72 +1601,103 @@ function RagebotL()
       end
 
       local function GetClosestEnemy()
+            if not me.Character 
+                  or not me.Character:FindFirstChild("HumanoidRootPart") 
+            then return nil end
+
             local closestEnemy = nil
             local shortestDistance = 100
 
             for _, player in pairs(plrs:GetPlayers()) do
-                  if player ~= me and player.Character and player.Character:FindFirstChild("HumanoidRootPart") and player.Character:FindFirstChildOfClass("Humanoid").Health > 15 and not player.Character:FindFirstChildOfClass("ForceField") then
-                        
+                  if player == me then continue end
+
+                  local character = player.Character
+                  local humanoid = character and character:FindFirstChildOfClass("Humanoid")
+                  local rootPart = character and character:FindFirstChild("HumanoidRootPart")
+
+                  if character 
+                        and rootPart 
+                        and humanoid 
+                        and humanoid.Health > 15 
+                        and not character:FindFirstChildOfClass("ForceField") 
+                  then
                         if SectionSettings.RageBot.CheckTeam and player.Team == me.Team then
                               continue
                         end
-                        
+
                         if SectionSettings.RageBot.CheckWhiteList and table.find(WhiteList, player) then
                               continue
                         end
-                        
-                        local enemyPos = player.Character.HumanoidRootPart.Position
-                        local distance = (enemyPos - me.Character.HumanoidRootPart.Position).Magnitude
 
+                        local distance = (rootPart.Position - me.Character.HumanoidRootPart.Position).Magnitude
                         if distance < shortestDistance then
+                              shortestDistance = distance
                               closestEnemy = player
                         end
                   end
             end
-
             return closestEnemy
       end
 
       local function Shoot(target)
             if not target or not target.Character then return end
-            local humanoidRootPart = target.Character:FindFirstChild("Head")
-            if not humanoidRootPart then return end
 
-            local hitPosition = humanoidRootPart.Position
+            local head = target.Character:FindFirstChild("Head")
+            if not head then return end
+
+            local tool = me.Character and me.Character:FindFirstChildOfClass("Tool")
+            if not tool then return end
+
+            local values = tool:FindFirstChild("Values")
+            local hitMarker = tool:FindFirstChild("Hitmarker")
+            if not values or not hitMarker then return end
+
+            local ammo = values:FindFirstChild("SERVER_Ammo")
+            local storedAmmo = values:FindFirstChild("SERVER_StoredAmmo")
+            if not ammo or not storedAmmo then return end
+
+            local hitPosition = head.Position
             local hitDirection = (hitPosition - camera.CFrame.Position).unit
-            local randomKey = RandomString(30)..0
-            local tool = me.Character:FindFirstChildOfClass("Tool")
+            local randomKey = RandomString(30) ..0
 
-            game:GetService("ReplicatedStorage").Events.GNX_S:FireServer(
-                  tick(), 
-                  randomKey, 
-                  tool, 
-                  "FDS9I83", 
-                  camera.CFrame.Position, 
-                  {hitDirection}, 
-                  false
-            )
-
-            task.delay(0.00001, function()
-                  game:GetService("ReplicatedStorage").Events.ZFKLF_H:FireServer(
-                        "🍯", 
-                        tool, 
-                        randomKey, 
-                        1, 
-                        humanoidRootPart, 
-                        hitPosition, 
-                        hitDirection, 
-                        nil, 
-                        nil
+            if ammo.Value > 0 then
+                  game:GetService("ReplicatedStorage").Events.GNX_S:FireServer(
+                        tick(),
+                        randomKey,
+                        tool,
+                        "FDS9I83",
+                        camera.CFrame.Position,
+                        {hitDirection},
+                        false
                   )
-            end)
+
+                  task.delay(0.00001, function()
+                        game:GetService("ReplicatedStorage").Events.ZFKLF_H:FireServer(
+                              "🍯",
+                              tool,
+                              randomKey,
+                              1,
+                              head,
+                              hitPosition,
+                              hitDirection,
+                              nil,
+                              nil
+                        )
+
+                        ammo.Value = math.max(ammo.Value - 1, 0)
+                        hitMarker:Fire(head)
+                        storedAmmo.Value = values:FindFirstChild("SERVER_StoredAmmo").Value
+                  end)
+            end
       end
 
       local function RageBotLoop()
             while functions.RagebotF do
-                  local target = GetClosestEnemy()
-                  if target then
-                        Shoot(target)
+                  if me.Character and me.Character:FindFirstChildOfClass("Tool") then
+                        local target = GetClosestEnemy()
+                        if target then
+                              Shoot(target)
+                        end
                   end
                   run.RenderStepped:Wait()
             end
@@ -1738,15 +1772,19 @@ function meleeauraL()
       local remote1 = game:GetService("ReplicatedStorage").Events["XMHH.2"]
       local remote2 = game:GetService("ReplicatedStorage").Events["XMHH2.2"]
 
-      local maxdist = 20
-
       function Attack(target)
             if not (target and target:FindFirstChild("Head")) then return end
-
+            
+            local mychar = me.Character
+            if not mychar then return end
+            local TOOL = mychar:FindFirstChildOfClass("Tool")
+            
+            if not TOOL then return end
+            
             local arg1 = {
                   [1] = "🍞",
                   [2] = tick(),
-                  [3] = me.Character:FindFirstChildOfClass("Tool"),
+                  [3] = TOOL,
                   [4] = "43TRFWX",
                   [5] = "Normal",
                   [6] = tick(),
@@ -1757,18 +1795,17 @@ function meleeauraL()
 
             task.wait(0.5)
 
-            local tool = me.Character:FindFirstChildOfClass("Tool")
-            if tool then
-                  local Handle = tool:FindFirstChild("WeaponHandle") or tool:FindFirstChild("Handle") or me.Character:FindFirstChild("Right Arm")
+            if TOOL then
+                  local Handle = TOOL:FindFirstChild("WeaponHandle") or TOOL:FindFirstChild("Handle") or me.Character:FindFirstChild("Right Arm")
                   local arg2 = {
                         [1] = "🍞",
                         [2] = tick(),
-                        [3] = tool,
+                        [3] = TOOL,
                         [4] = "2389ZFX34",
                         [5] = result,
                         [6] = false,
                         [7] = Handle,
-                        [8] = target:FindFirstChild("Head"),
+                        [8] = target[SectionSettings.MeleeAura.TargetPart],
                         [9] = target,
                         [10] = me.Character:FindFirstChild("HumanoidRootPart").Position,
                         [11] = target:FindFirstChild("Head").Position
@@ -1791,7 +1828,16 @@ function meleeauraL()
                                           local hrp = char:FindFirstChild("HumanoidRootPart")
                                           if hrp then
                                                 local distance = (myhrp.Position - hrp.Position).Magnitude
-                                                if distance < maxdist and a.Character:FindFirstChildOfClass("Humanoid").Health > 15 and not char:FindFirstChildOfClass("ForceField") then
+                                                if distance < SectionSettings.MeleeAura.Distance and a.Character:FindFirstChildOfClass("Humanoid").Health > 15 and not char:FindFirstChildOfClass("ForceField") then
+                                                      
+                                                      if SectionSettings.MeleeAura.CheckWhiteList and table.find(WhiteList, a) then
+                                                            continue
+                                                      end
+                                                      
+                                                      if SectionSettings.MeleeAura.CheckTeam and a.Team == me.Team then
+                                                            continue
+                                                      end
+                                                      
                                                       Attack(char)
                                                 end
                                           end
@@ -1994,6 +2040,15 @@ function aimbotL()
                         if player ~= me and player.Character and player.Character:FindFirstChild(aimpart) then
                               local pos, onScreen = camera:WorldToViewportPoint(player.Character[aimpart].Position)
                               if onScreen then
+                                    
+                                    if SectionSettings.AimBot.CheckTeam and target.Team == me.Team then
+                                          continue
+                                    end
+                                    
+                                    if SectionSettings.AimBot.CheckWhiteList and table.find(WhiteList, target) then
+                                          continue
+                                    end
+                                    
                                     local distance = (Vector2.new(pos.X, pos.Y) - Vector2.new(input:GetMouseLocation().X, input:GetMouseLocation().Y)).Magnitude
                                     if distance < closestDist then
                                           closestDist = distance
@@ -2034,6 +2089,7 @@ function aimbotL()
                         local humanoid = aimtarget.Character:FindFirstChild("Humanoid")
 
                         if head and humanoid and humanoid.Health > 0 and canusing then
+                              
                               local targetPosition = head.Position
                               if velocity then
                                     targetPosition = targetPosition + head.Velocity / predict
@@ -2121,7 +2177,7 @@ function ConsoleText(text, typeF)
 end
 
 Commands.cmds()
-ConsoleText("[Version 1.03]", "text")
+ConsoleText("[Version 1.04]", "text")
 
 ocmenukeybindLoad.MouseEnter:Connect(function()
       remotes.OCmenukeybind = true
