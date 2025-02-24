@@ -48,7 +48,7 @@ local functions = {
       FlyF = nil,
       infstaminaF = false,
       nofalldamageF = false,
-      silentaimF = nil,
+      silentaimF = false,
       aimbotF = false,
       rocket_controlF = nil,
       meleeauraF = false,
@@ -1143,6 +1143,8 @@ local INDEX = {
 }
 
 local INDEX2 = {
+      {button = silentaimteamcheck, func = SectionSettings.SilentAim, "CheckTeam"},
+      {button = silentaimwhitelistcheck, func = SectionSettings.SilentAim, "CheckList"},
       {button = aimbotdraw, func = SectionSettings.AimBot, name = "Draw"},
       {button = aimbotcheckwall, func = SectionSettings.AimBot, name = "CheckWall"},
       {button = aimbotcheckteam, func = SectionSettings.AimBot, name = "CheckTeam"},
@@ -2422,7 +2424,7 @@ function ConsoleText(text, typeF)
 end
 
 Commands.cmds()
-ConsoleText("[Version 1.04]", "text")
+ConsoleText("[Version 1.05]", "text")
 
 ocmenukeybindLoad.MouseEnter:Connect(function()
       remotes.OCmenukeybind = true
