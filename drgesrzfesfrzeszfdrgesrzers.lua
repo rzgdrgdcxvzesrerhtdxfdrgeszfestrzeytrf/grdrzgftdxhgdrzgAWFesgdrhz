@@ -1851,71 +1851,81 @@ function EspL()
       local trackedPlayers = {}
       local TEXT_OFFSET = Vector2.new(0, -30)
 
-      local function createEsp(player)
-            local character = player.Character or player.CharacterAdded:Wait()
-            local humanoidRootPart = character:WaitForChild("HumanoidRootPart")
-            local head = character:WaitForChild("Head")
-
-            trackedPlayers[player] = {
-                  chams = nil,
-                  text = nil,
-                  connections = {}
-            }
-
-            local function updateEsp()
-                  if not trackedPlayers[player] then return end
-
-                  if SectionSettings.ESP.Chams then
-                        if not trackedPlayers[player].chams then
-                              local highlight = Instance.new("Highlight")
-                              highlight.FillTransparency = 1
-                              highlight.Parent = character
-                              trackedPlayers[player].chams = highlight
-                        end
-                  else
-                        if trackedPlayers[player].chams then
-                              trackedPlayers[player].chams:Destroy()
-                              trackedPlayers[player].chams = nil
-                        end
+      local function updatePlayerEsp(player, data)
+            local character = player.Character
+            if not character then
+                  if data.chams then 
+                        data.chams:Destroy() 
+                        data.chams = nil 
                   end
+                  return
+            end
 
-                  if SectionSettings.ESP.Name then
-                        if not trackedPlayers[player].text then
-                              local text = Drawing.new("Text")
-                              text.Visible = false
-                              text.Size = 12
-                              text.Color = Color3.new(1, 1, 1)
-                              text.Outline = true
-                              text.Center = true
-                              trackedPlayers[player].text = text
+            if SectionSettings.ESP.CheckTeam and player.Team == me.Team then
+                  if data.chams then 
+                        data.chams:Destroy() 
+                        data.chams = nil 
+                  end
+                  if data.text then 
+                        data.text:Remove() 
+                        data.text = nil 
+                  end
+                  return
+            end
+
+            if SectionSettings.ESP.Chams then
+                  if not data.chams or data.chams.Parent ~= character then
+                        if data.chams then 
+                              data.chams:Destroy() 
                         end
-                  else
-                        if trackedPlayers[player].text then
-                              trackedPlayers[player].text:Remove()
-                              trackedPlayers[player].text = nil
-                        end
+                        local highlight = Instance.new("Highlight")
+                        highlight.FillTransparency = 1
+                        highlight.Parent = character
+                        data.chams = highlight
+                  end
+            else
+                  if data.chams then
+                        data.chams:Destroy()
+                        data.chams = nil
                   end
             end
 
-            table.insert(trackedPlayers[player].connections, run.Heartbeat:Connect(function()
-                  if trackedPlayers[player].text and humanoidRootPart and head then
+            if SectionSettings.ESP.Name then
+                  if not data.text then
+                        local text = Drawing.new("Text")
+                        text.Visible = false
+                        text.Size = 12
+                        text.Color = Color3.new(1, 1, 1)
+                        text.Outline = true
+                        text.Center = true
+                        data.text = text
+                  end
+                  local head = character:FindFirstChild("Head")
+                  if head then
                         local headPosition = head.Position + Vector3.new(0, 0.5, 0)
-                        local position, onScreen = workspace.CurrentCamera:WorldToViewportPoint(headPosition)
-
+                        local pos, onScreen = workspace.CurrentCamera:WorldToViewportPoint(headPosition)
                         if onScreen then
-                              trackedPlayers[player].text.Visible = true
-                              trackedPlayers[player].text.Position = Vector2.new(
-                                    position.X + TEXT_OFFSET.X,
-                                    position.Y + TEXT_OFFSET.Y
-                              )
-                              trackedPlayers[player].text.Text = player.Name
+                              data.text.Visible = true
+                              data.text.Position = Vector2.new(pos.X + TEXT_OFFSET.X, pos.Y + TEXT_OFFSET.Y)
+                              data.text.Text = player.Name
                         else
-                              trackedPlayers[player].text.Visible = false
+                              data.text.Visible = false
                         end
                   end
-            end))
+            else
+                  if data.text then
+                        data.text:Remove()
+                        data.text = nil
+                  end
+            end
+      end
 
-            table.insert(trackedPlayers[player].connections, run.Heartbeat:Connect(updateEsp))
+      local function createEsp(player)
+            if trackedPlayers[player] then return end
+            trackedPlayers[player] = {
+                  chams = nil,
+                  text = nil,
+            }
       end
 
       local function removeEsp(player)
@@ -1925,9 +1935,6 @@ function EspL()
                   end
                   if trackedPlayers[player].text then
                         trackedPlayers[player].text:Remove()
-                  end
-                  for _, conn in pairs(trackedPlayers[player].connections) do
-                        conn:Disconnect()
                   end
                   trackedPlayers[player] = nil
             end
@@ -1947,15 +1954,22 @@ function EspL()
 
       plrs.PlayerRemoving:Connect(removeEsp)
 
-      while functions.EspF do
-            run.Heartbeat:Wait()
+      local heartbeatConnection
+      heartbeatConnection = run.Heartbeat:Connect(function()
             if not functions.EspF then
-                  for player in pairs(trackedPlayers) do
-                        removeEsp(player)
+                  for player, data in pairs(trackedPlayers) do
+                        if data.chams then data.chams:Destroy() end
+                        if data.text then data.text:Remove() end
                   end
-                  break
+                  trackedPlayers = {}
+                  heartbeatConnection:Disconnect()
+                  return
             end
-      end
+
+            for player, data in pairs(trackedPlayers) do
+                  updatePlayerEsp(player, data)
+            end
+      end)
 end
 
 function UpdateButtons()
