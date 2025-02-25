@@ -1053,7 +1053,7 @@ local glassarmscolor = Functions:MakeColorWheelButton(VisualMenu, UDim2.new(0.93
 local silentaimTurn = Functions:MakeSectionButton(SECTION1, "silentaim", "Silent aim", UDim2.new(0.03, 0, 0.022, 0), UDim2.new(0, 160, 0, 32), functions, "silentaimF", function()
       SilentaimL()
 end)
-local silentaimdraw = Functions:MakeSectionCheckButton(SECTION1, "Draw", "Draw circle", UDim2.new(0.029, 0, 0.145, 0), SectionSettings.SilentAim, "Draw", true, "Size", UDim2.new(0, 0, 1.367, 0), 50, 300, function(val)
+local silentaimdraw = Functions:MakeSectionCheckButton(SECTION1, "Draw", "Draw circle", UDim2.new(0.029, 0, 0.145, 0), SectionSettings.SilentAim, "Draw", true, "Size", UDim2.new(0, 0, 1.367, 0), 20, 300, function(val)
       SectionSettings.SilentAim.DrawSize = math.floor(val)
       if remotes.silentaim_circle then
             remotes.silentaim_circle.Radius = math.floor(val)
@@ -1070,7 +1070,7 @@ local silentaimcheckdistance = Functions:MakeSectionCheckButton(SECTION1, "Check
 local aimbotTurn = Functions:MakeSectionButton(SECTION2, "aimbot", "Aim bot", UDim2.new(0.03, 0, 0.022, 0), UDim2.new(0, 160, 0, 32), functions, "aimbotF", function()
       aimbotL()
 end)
-local aimbotdraw = Functions:MakeSectionCheckButton(SECTION2, "Draw", "Draw circle", UDim2.new(0.029, 0, 0.158, 0), SectionSettings.AimBot, "Draw", true, "Size", UDim2.new(0, 0, 1.367, 0), 50, 300, function(val)
+local aimbotdraw = Functions:MakeSectionCheckButton(SECTION2, "Draw", "Draw circle", UDim2.new(0.029, 0, 0.158, 0), SectionSettings.AimBot, "Draw", true, "Size", UDim2.new(0, 0, 1.367, 0), 20, 300, function(val)
       SectionSettings.AimBot.DrawSize = math.floor(val)
       if remotes.aimbot_circle then
             remotes.aimbot_circle.Radius = math.floor(val)
