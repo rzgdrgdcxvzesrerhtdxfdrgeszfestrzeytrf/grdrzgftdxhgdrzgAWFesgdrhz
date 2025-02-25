@@ -186,8 +186,6 @@ dragg.Position = UDim2.new(0.24, 0, 0.132, 0)
 dragg.Size = UDim2.new(0, 405, 0, 19)
 dragg.Visible = true
 
-local OCmenubutton = nil
-
 uicdragg = Instance.new("UICorner")
 uicdragg.Parent = dragg
 uicdragg.CornerRadius = UDim.new(0, 8)
@@ -1469,11 +1467,11 @@ function SilentaimL()
                         if player == me or not player.Character then continue end
                         
                         if SectionSettings.SilentAim.CheckTeam and player.Team == me.Team then
-                              return
+                              continue
                         end
                         
                         if SectionSettings.SilentAim.CheckList and table.find(WhiteList, player) then
-                              return
+                              continue
                         end
                         
                         local character = player.Character
@@ -2291,12 +2289,12 @@ function aimbotL()
                               local pos, onScreen = camera:WorldToViewportPoint(player.Character[aimpart].Position)
                               if onScreen then
                                     
-                                    if SectionSettings.AimBot.CheckTeam and target.Team == me.Team then
-                                          return
+                                    if SectionSettings.AimBot.CheckTeam and player.Team == me.Team then
+                                          continue
                                     end
                                     
                                     if SectionSettings.AimBot.CheckWhiteList and table.find(WhiteList, player) then
-                                          return
+                                          continue
                                     end
                                     
                                     local distance = (Vector2.new(pos.X, pos.Y) - Vector2.new(input:GetMouseLocation().X, input:GetMouseLocation().Y)).Magnitude
@@ -2529,16 +2527,6 @@ input.InputBegan:Connect(function(key)
             end
       end
 end)
-
-if OCmenubutton ~= nil then
-      OCmenubutton.MouseButton1Click:Connect(function()
-            if dragg.Visible == true then
-                  dragg.Visible = false
-            else
-                  dragg.Visible = true
-            end
-      end)
-end
 
 function UpdateWhite()
       function Update(player)
