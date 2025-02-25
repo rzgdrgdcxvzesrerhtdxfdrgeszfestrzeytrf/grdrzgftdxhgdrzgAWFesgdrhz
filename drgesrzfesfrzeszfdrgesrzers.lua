@@ -4,13 +4,12 @@ local mouse = me:GetMouse()
 local tween = game:GetService("TweenService")
 local light = game:GetService("Lighting")
 local input = game:GetService("UserInputService")
+local content = game:GetService("ContentProvider")
 local run = game:GetService("RunService")
 local camera = game.Workspace.CurrentCamera
 
 _G.Keybind = Enum.KeyCode.Insert
 local ignore_binds = {Enum.KeyCode.W, Enum.KeyCode.A, Enum.KeyCode.D, Enum.KeyCode.S, Enum.KeyCode.F9, Enum.KeyCode.F12, Enum.KeyCode.Tab, Enum.KeyCode.Space, Enum.KeyCode.Backspace, Enum.KeyCode.LeftControl, Enum.KeyCode.LeftShift, Enum.UserInputType.MouseButton1, Enum.UserInputType.MouseButton2, Enum.UserInputType.MouseButton3}
-
-local status = ""
 
 local PlayersList = {}
 local WhiteList = {}
@@ -155,9 +154,23 @@ function Animate(Button, val, section)
       end
 end
 
-wait(1)
-local MouseCheck = input.MouseEnabled
-if MouseCheck then status = "PC" else status = "mobile" end
+content:PreloadAsync({"rbxassetid://83501732181441"})
+content:PreloadAsync({"rbxassetid://2084290015"})
+
+game:GetService("StarterGui"):SetCore("SendNotification", {
+      Title = "Wecome to Ghost",
+      Icon = "rbxassetid://83501732181441",
+      Text = "Join to discord \n https://discord.gg/5XAn83XFJP",
+      Duration = 10
+})
+
+local sound = Instance.new("Sound")
+sound.Parent = game:GetService("SoundService")
+sound.SoundId = "rbxassetid://2084290015"
+sound:Play()
+sound.Ended:Connect(function()
+      sound:Destroy()
+end)
 
 local Gui = Instance.new("ScreenGui")
 local s, e = pcall(function() Gui.Parent = game.CoreGui end) if not s then Gui.Parent = me.PlayerGui end
@@ -175,28 +188,6 @@ dragg.Visible = true
 
 local OCmenubutton = nil
 
-if status == "mobile" then
-      OCmenubutton = Instance.new("ImageButton")
-      OCmenubutton.Parent = Gui
-      OCmenubutton.BackgroundColor3 = Color3.new(0, 0, 0)
-      OCmenubutton.Position = UDim2.new(0, 306, 0, 21)
-      OCmenubutton.Size = UDim2.new(0, 25, 0, 25)
-      OCmenubutton.Image = "rbxassetid://83501732181441"
-      OCmenubutton.ImageColor3 = Color3.new(1, 1, 1)
-      OCmenubutton.Visible = true
-
-      local uicocmenubutton = Instance.new("UICorner")
-      uicocmenubutton.Parent = OCmenubutton
-      uicocmenubutton.CornerRadius = UDim.new(8, 8)
-
-      local uisocmenubutton = Instance.new("UIStroke")
-      uisocmenubutton.Parent = OCmenubutton
-      uisocmenubutton.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
-      uisocmenubutton.Color = Color3.new(1, 1, 1)
-      uisocmenubutton.LineJoinMode = Enum.LineJoinMode.Round
-      uisocmenubutton.Thickness = 1.5
-end
-
 uicdragg = Instance.new("UICorner")
 uicdragg.Parent = dragg
 uicdragg.CornerRadius = UDim.new(0, 8)
@@ -210,7 +201,7 @@ uisdragg.Thickness = 1
 
 uiscdragg = Instance.new("UIScale")
 uiscdragg.Parent = dragg
-if status == "PC" then uiscdragg.Scale = 1 else uiscdragg.Scale = 0.5 end
+uiscdragg.Scale = 1
 
 local mainframe = Instance.new("Frame")
 mainframe.Parent = dragg
@@ -226,7 +217,7 @@ uicmf.CornerRadius = UDim.new(0, 8)
 
 uiscmf = Instance.new("UIScale")
 uiscmf.Parent = mainframe
-if status == "PC" then uiscmf.Scale = 0.8 else uiscmf.Scale = 0.7 end
+uiscmf.Scale = 0.8
 
 uistmf = Instance.new("UIStroke")
 uistmf.Parent = mainframe
@@ -1053,7 +1044,7 @@ local glassarmscolor = Functions:MakeColorWheelButton(VisualMenu, UDim2.new(0.93
 local silentaimTurn = Functions:MakeSectionButton(SECTION1, "silentaim", "Silent aim", UDim2.new(0.03, 0, 0.022, 0), UDim2.new(0, 160, 0, 32), functions, "silentaimF", function()
       SilentaimL()
 end)
-local silentaimdraw = Functions:MakeSectionCheckButton(SECTION1, "Draw", "Draw circle", UDim2.new(0.029, 0, 0.145, 0), SectionSettings.SilentAim, "Draw", true, "Size", UDim2.new(0, 0, 1.367, 0), 20, 300, function(val)
+local silentaimdraw = Functions:MakeSectionCheckButton(SECTION1, "Draw", "Draw circle", UDim2.new(0.029, 0, 0.145, 0), SectionSettings.SilentAim, "Draw", true, "Size", UDim2.new(0, 0, 1.367, 0), 50, 300, function(val)
       SectionSettings.SilentAim.DrawSize = math.floor(val)
       if remotes.silentaim_circle then
             remotes.silentaim_circle.Radius = math.floor(val)
@@ -1070,7 +1061,7 @@ local silentaimcheckdistance = Functions:MakeSectionCheckButton(SECTION1, "Check
 local aimbotTurn = Functions:MakeSectionButton(SECTION2, "aimbot", "Aim bot", UDim2.new(0.03, 0, 0.022, 0), UDim2.new(0, 160, 0, 32), functions, "aimbotF", function()
       aimbotL()
 end)
-local aimbotdraw = Functions:MakeSectionCheckButton(SECTION2, "Draw", "Draw circle", UDim2.new(0.029, 0, 0.158, 0), SectionSettings.AimBot, "Draw", true, "Size", UDim2.new(0, 0, 1.367, 0), 20, 300, function(val)
+local aimbotdraw = Functions:MakeSectionCheckButton(SECTION2, "Draw", "Draw circle", UDim2.new(0.029, 0, 0.158, 0), SectionSettings.AimBot, "Draw", true, "Size", UDim2.new(0, 0, 1.367, 0), 50, 300, function(val)
       SectionSettings.AimBot.DrawSize = math.floor(val)
       if remotes.aimbot_circle then
             remotes.aimbot_circle.Radius = math.floor(val)
@@ -1454,7 +1445,6 @@ local Commands = {
             ConsoleText("")
       end,
       close = function()
-            if OCmenubutton then OCmenubutton:Destroy() end
             Gui:Destroy()
       end,
 }
@@ -1479,11 +1469,11 @@ function SilentaimL()
                         if player == me or not player.Character then continue end
                         
                         if SectionSettings.SilentAim.CheckTeam and player.Team == me.Team then
-                              continue
+                              return
                         end
                         
                         if SectionSettings.SilentAim.CheckList and table.find(WhiteList, player) then
-                              continue
+                              return
                         end
                         
                         local character = player.Character
@@ -2302,11 +2292,11 @@ function aimbotL()
                               if onScreen then
                                     
                                     if SectionSettings.AimBot.CheckTeam and target.Team == me.Team then
-                                          continue
+                                          return
                                     end
                                     
                                     if SectionSettings.AimBot.CheckWhiteList and table.find(WhiteList, player) then
-                                          continue
+                                          return
                                     end
                                     
                                     local distance = (Vector2.new(pos.X, pos.Y) - Vector2.new(input:GetMouseLocation().X, input:GetMouseLocation().Y)).Magnitude
