@@ -66,7 +66,7 @@ local functions = {
 local SectionSettings = {
       SilentAim = {
             Draw = nil,
-            DrawSize = 15,
+            DrawSize = 50,
             DrawColor = nil,
             TargetPart = nil,
             CheckWall = nil,
@@ -592,13 +592,13 @@ function Library()
             end)
 
             input.InputEnded:Connect(function(key)
-                  if key.UserInputType == Enum.UserInputType.MouseButton1 or key.UserInputType == Enum.UserInputType.Touch then
+                  if key.UserInputType == Enum.UserInputType.MouseButton1 then
                         activated = false
                   end
             end)
 
             input.InputChanged:Connect(function(key)
-                  if activated and (key.UserInputType == Enum.UserInputType.MouseMovement or key.UserInputType == Enum.UserInputType.Touch) then  
+                  if activated and key.UserInputType == Enum.UserInputType.MouseMovement then  
                         local mousepos = input:GetMouseLocation().X
                         local resize = math.clamp(mousepos - SliderControl.AbsolutePosition.X, mine, maxe)
                         local scale = resize / SliderControl.AbsoluteSize.X
@@ -825,13 +825,13 @@ function Library()
                   end)
 
                   input.InputEnded:Connect(function(key)
-                        if key.UserInputType == Enum.UserInputType.MouseButton1 or key.UserInputType == Enum.UserInputType.Touch then
+                        if key.UserInputType == Enum.UserInputType.MouseButton1 then
                               canuse = false
                         end
                   end)
 
                   input.InputChanged:Connect(function(key)
-                        if canuse and (key.UserInputType == Enum.UserInputType.MouseMovement or key.UserInputType == Enum.UserInputType.Touch) then
+                        if canuse and key.UserInputType == Enum.UserInputType.MouseMovement then
                               local mpos = input:GetMouseLocation().X
                               local SCALE = math.clamp((mpos - SectionSliderControl.AbsolutePosition.X)/SectionSliderControl.AbsoluteSize.X,0.08,1)
                               SectionSliderButton.Size = UDim2.fromScale(SCALE, 1)
@@ -2493,21 +2493,37 @@ function update(input)
 end
 
 dragg.InputBegan:Connect(function(input)
-      if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+      if input.UserInputType == Enum.UserInputType.MouseButton1 then
             dragging = true
             dragStart = input.Position
             startPos = dragg.Position
+            
+            for _, a in pairs(Gui:GetDescendants()) do
+                  if a:IsA("Frame") or a:IsA("TextLabel") or a:IsA("ImageLabel") or a:IsA("ImageButton") then
+                        if a.BackgroundTransparency ~= 1 then
+                              a.BackgroundTransparency = 0.3
+                        end
+                  end
+            end
 
             input.Changed:Connect(function()
                   if input.UserInputState == Enum.UserInputState.End then
                         dragging = false
+                        
+                        for _, a in pairs(Gui:GetDescendants()) do
+                              if a:IsA("Frame") or a:IsA("TextLabel") or a:IsA("ImageLabel") or a:IsA("ImageButton") then
+                                    if a.BackgroundTransparency ~= 1 then
+                                          a.BackgroundTransparency = 0
+                                    end
+                              end
+                        end
                   end
             end)
       end
 end)
 
 dragg.InputChanged:Connect(function(input)
-      if input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch then
+      if input.UserInputType == Enum.UserInputType.MouseMovement then
             dragInput = input
       end
 end)
