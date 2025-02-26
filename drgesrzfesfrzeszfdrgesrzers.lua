@@ -2497,26 +2497,10 @@ dragg.InputBegan:Connect(function(input)
             dragging = true
             dragStart = input.Position
             startPos = dragg.Position
-            
-            for _, a in pairs(Gui:GetDescendants()) do
-                  if a:IsA("Frame") or a:IsA("TextLabel") or a:IsA("ImageLabel") or a:IsA("ImageButton") then
-                        if a.BackgroundTransparency ~= 1 then
-                              a.BackgroundTransparency = 0.3
-                        end
-                  end
-            end
 
             input.Changed:Connect(function()
                   if input.UserInputState == Enum.UserInputState.End then
                         dragging = false
-                        
-                        for _, a in pairs(Gui:GetDescendants()) do
-                              if a:IsA("Frame") or a:IsA("TextLabel") or a:IsA("ImageLabel") or a:IsA("ImageButton") then
-                                    if a.BackgroundTransparency ~= 1 then
-                                          a.BackgroundTransparency = 0
-                                    end
-                              end
-                        end
                   end
             end)
       end
