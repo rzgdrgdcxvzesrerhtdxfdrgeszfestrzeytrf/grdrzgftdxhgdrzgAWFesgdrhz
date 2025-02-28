@@ -60,7 +60,8 @@ local functions = {
       lockpickF = false,
       atmF = false,
       RagebotF = false,
-      WallbangF = false
+      WallbangF = false,
+      AltsFarmF = false
 }
 
 local SectionSettings = {
@@ -122,6 +123,7 @@ local remotes = {
       aimbot_circle = nil,
       aimbot_circlepos = nil,
       Speed_RUN = nil,
+      Altsfarm_respawnRUN = nil,
 }
 
 function Decrypt(value)
@@ -1042,10 +1044,10 @@ local glassarmscolor = Functions:MakeColorWheelButton(VisualMenu, UDim2.new(0.93
 local silentaimTurn = Functions:MakeSectionButton(SECTION1, "silentaim", "Silent aim", UDim2.new(0.03, 0, 0.022, 0), UDim2.new(0, 160, 0, 32), functions, "silentaimF", function()
       SilentaimL()
 end)
-local silentaimdraw = Functions:MakeSectionCheckButton(SECTION1, "Draw", "Draw circle", UDim2.new(0.029, 0, 0.145, 0), SectionSettings.SilentAim, "Draw", true, "Size", UDim2.new(0, 0, 1.367, 0), 50, 300, function(val)
-      SectionSettings.SilentAim.DrawSize = math.floor(val)
+local silentaimdraw = Functions:MakeSectionCheckButton(SECTION1, "Draw", "Draw circle", UDim2.new(0.029, 0, 0.145, 0), SectionSettings.SilentAim, "Draw", true, "Size", UDim2.new(0, 0, 1.367, 0), 10, 300, function(val)
+      SectionSettings.SilentAim.DrawSize = val
       if remotes.silentaim_circle then
-            remotes.silentaim_circle.Radius = math.floor(val)
+            remotes.silentaim_circle.Radius = val
       end
 end)
 local silentaimdrawcolor = Functions:MakeColorWheelButton(SECTION1, UDim2.new(0.783, 0, 0.145, 0))
@@ -1059,10 +1061,10 @@ local silentaimcheckdistance = Functions:MakeSectionCheckButton(SECTION1, "Check
 local aimbotTurn = Functions:MakeSectionButton(SECTION2, "aimbot", "Aim bot", UDim2.new(0.03, 0, 0.022, 0), UDim2.new(0, 160, 0, 32), functions, "aimbotF", function()
       aimbotL()
 end)
-local aimbotdraw = Functions:MakeSectionCheckButton(SECTION2, "Draw", "Draw circle", UDim2.new(0.029, 0, 0.158, 0), SectionSettings.AimBot, "Draw", true, "Size", UDim2.new(0, 0, 1.367, 0), 50, 300, function(val)
-      SectionSettings.AimBot.DrawSize = math.floor(val)
+local aimbotdraw = Functions:MakeSectionCheckButton(SECTION2, "Draw", "Draw circle", UDim2.new(0.029, 0, 0.158, 0), SectionSettings.AimBot, "Draw", true, "Size", UDim2.new(0, 0, 1.367, 0), 10, 300, function(val)
+      SectionSettings.AimBot.DrawSize = val
       if remotes.aimbot_circle then
-            remotes.aimbot_circle.Radius = math.floor(val)
+            remotes.aimbot_circle.Radius = val
       end
 end)
 local aimbotdrawcolor = Functions:MakeColorWheelButton(SECTION2, UDim2.new(0.783, 0, 0.152, 0))
@@ -1426,6 +1428,88 @@ uipmelelist.PaddingLeft = UDim.new(0, 10)
 uipmelelist.PaddingRight = UDim.new(0, 0)
 uipmelelist.PaddingTop = UDim.new(0, 10)
 
+local AltsFarm = Instance.new("TextLabel")
+AltsFarm.Parent = FarmMenu
+AltsFarm.Name = "AltsFarm"
+AltsFarm.BackgroundColor3 = Color3.new(0.196078, 0.196078, 0.196078)
+AltsFarm.Position = UDim2.new(0.016, 0, 0.193, 0)
+AltsFarm.Size = UDim2.new(0, 270, 0, 32)
+AltsFarm.TextScaled = true
+AltsFarm.TextColor3 = Color3.new(1, 1, 1)
+AltsFarm.Text = "Alt accounts farm"
+AltsFarm.Visible = true
+
+local uicaltsfarm = Instance.new("UICorner")
+uicaltsfarm.Parent = AltsFarm
+uicaltsfarm.CornerRadius = UDim.new(8, 8)
+
+local NameAltsfarm = Instance.new("TextBox")
+NameAltsfarm.Parent = AltsFarm
+NameAltsfarm.Name = "Name"
+NameAltsfarm.BackgroundColor3 = Color3.new(0, 0, 0)
+NameAltsfarm.Position = UDim2.new(0, 0, 1.289, 0)
+NameAltsfarm.Size = UDim2.new(0, 270, 0, 30)
+NameAltsfarm.TextEditable = true
+NameAltsfarm.ClearTextOnFocus = false
+NameAltsfarm.TextScaled = true
+NameAltsfarm.TextColor3 = Color3.new(1, 1, 1)
+NameAltsfarm.Text = ""
+NameAltsfarm.PlaceholderColor3 = Color3.new(0.533333, 0.533333, 0.533333)
+NameAltsfarm.PlaceholderText = "Write name of main account"
+NameAltsfarm.Visible = true
+
+local uicnamealtsfarm = Instance.new("UICorner")
+uicnamealtsfarm.Parent = NameAltsfarm
+uicnamealtsfarm.CornerRadius = UDim.new(8, 8)
+
+local uisnamealtsfarm = Instance.new("UIStroke")
+uisnamealtsfarm.Parent = NameAltsfarm
+uisnamealtsfarm.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+uisnamealtsfarm.Color = Color3.new(1, 1, 1)
+uisnamealtsfarm.LineJoinMode = Enum.LineJoinMode.Round
+uisnamealtsfarm.Thickness = 1
+
+local StartAltsfarm = Instance.new("ImageButton")
+StartAltsfarm.Parent = AltsFarm
+StartAltsfarm.Name = "Start"
+StartAltsfarm.BackgroundColor3 = Color3.new(0.0156863, 1, 0)
+StartAltsfarm.Position = UDim2.new(1.065, 0, -0.039, 0)
+StartAltsfarm.Size = UDim2.new(0, 38, 0, 38)
+StartAltsfarm.Image = "http://www.roblox.com/asset/?id=90624860933410"
+StartAltsfarm.ImageColor3 = Color3.new(0, 0, 0)
+
+local uicstartaltsfarm = Instance.new("UICorner")
+uicstartaltsfarm.Parent = StartAltsfarm
+uicstartaltsfarm.CornerRadius = UDim.new(8, 8)
+
+local uisstartaltsfarm = Instance.new("UIStroke")
+uisstartaltsfarm.Parent = StartAltsfarm
+uisstartaltsfarm.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+uisstartaltsfarm.Color = Color3.new(1, 1, 1)
+uisstartaltsfarm.LineJoinMode = Enum.LineJoinMode.Round
+uisstartaltsfarm.Thickness = 1
+
+local StopAltsFarm = Instance.new("ImageButton")
+StopAltsFarm.Parent = AltsFarm
+StopAltsFarm.Name = "Stop"
+StopAltsFarm.BackgroundColor3 = Color3.new(1, 1, 1)
+StopAltsFarm.Position = UDim2.new(1.287, 0, -0.039, 0)
+StopAltsFarm.Size = UDim2.new(0, 38, 0, 38)
+StopAltsFarm.Image = "rbxassetid://101396568884110"
+StopAltsFarm.ImageColor3 = Color3.new(1, 0, 0)
+StopAltsFarm.Visible = true
+
+local uicstopaltsfarm = Instance.new("UICorner")
+uicstopaltsfarm.Parent = StopAltsFarm
+uicstopaltsfarm.CornerRadius = UDim.new(8, 8)
+
+local uisstopaltsfarm = Instance.new("UIStroke")
+uisstopaltsfarm.Parent = StopAltsFarm
+uisstopaltsfarm.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+uisstopaltsfarm.Color = Color3.new(1, 1, 1)
+uisstopaltsfarm.LineJoinMode = Enum.LineJoinMode.Round
+uisstopaltsfarm.Thickness = 1
+
 local GlockSkin = Functions:AddSkin(gunsList, "Glock", "Glock - Anime girl")
 local KatanaSkin = Functions:AddSkin(meleesList, "Katana", "Katana - hz")
 
@@ -1447,44 +1531,127 @@ local Commands = {
       end,
 }
 
+function AltsFarmL()
+      local respawn = game:GetService("ReplicatedStorage"):FindFirstChild("Events"):FindFirstChild("DeathRespawn")
+      local running = nil
+      local anim
+      
+      function Start(Name)
+            local mainAcc = plrs:FindFirstChild(tostring(Name))
+            
+            local function onCharacterAdded(character)
+                  local hum = character:FindFirstChildOfClass("Humanoid")
+                  local hrp = character:FindFirstChild("HumanoidRootPart")
+                  if not hum or not hrp then return end
+                  
+                  running = run.RenderStepped:Connect(function()
+                        if functions.AltsFarmF then
+                              local mainCharacter = mainAcc.Character
+                              if mainCharacter then
+                                    local mainHRP = mainCharacter:FindFirstChild("HumanoidRootPart")
+                                    if mainHRP then
+                                          anim = tween:Create(hrp, TweenInfo.new(0, Enum.EasingStyle.Linear, Enum.EasingDirection.InOut), {CFrame = CFrame.new(mainHRP.Position + mainHRP.CFrame.LookVector * 3)}):Play()
+                                          hum:GetPropertyChangedSignal("Health"):Connect(function()
+                                                if functions.AltsFarmF then      
+                                                      hum.Health = 0
+                                                end
+                                          end)
+                                    end
+                              end
+                        end
+                  end)
+            end
+            
+            if me.Character then
+                  if functions.AltsFarmF then
+                        onCharacterAdded(me.Character)
+                  end
+            end
+            
+            me.CharacterAdded:Connect(function()
+                  if functions.AltsFarmF then
+                        wait(.5)
+                        onCharacterAdded(me.Character)
+                        local tool = me.Backpack:FindFirstChildOfClass("Tool")
+                        if tool then
+                              tool.Parent = me.Character
+                        end
+                  end
+            end)
+            
+            remotes.Altsfarm_respawnRUN = run.RenderStepped:Connect(function()
+                  local char = me.Character
+                  if char then
+                        local hum = char:FindFirstChildOfClass("Humanoid")
+                        if hum and hum.Health  <= 0 then
+                              respawn:InvokeServer("KMG4R904")
+                        end
+                  end
+            end)
+      end
+      
+      function Stop()
+            if running then
+                  running:Disconnect()
+                  running = nil
+            end
+            if anim then
+                  anim:Cancel()
+                  anim = nil
+            end
+            
+            if remotes.Altsfarm_respawnRUN then
+                  remotes.Altsfarm_respawnRUN:Disconnect()
+                  remotes.Altsfarm_respawnRUN = nil
+            end
+      end
+      
+      if functions.AltsFarmF == true then
+            local getname = NameAltsfarm.Text
+            local MainName = plrs:FindFirstChild(tostring(getname))
+            if MainName then
+                  ConsoleText("Found", "succes")
+                  Start(MainName)
+            else
+                  ConsoleText("Not found", "error")
+            end
+      else
+            Stop()
+      end
+end
+
 function SilentaimL()
       if functions.silentaimF then
-            remotes.silentaim_circle = Drawing.new("Circle")
-            remotes.silentaim_circle.Visible = true
-            remotes.silentaim_circle.Transparency = 1
-            remotes.silentaim_circle.Thickness = 1.5
-            remotes.silentaim_circle.Color = Color3.fromRGB(255, 0, 0)
-            remotes.silentaim_circle.Filled = false
-
             local function UrTargetFunc()
-                  if not functions.silentaimF then return nil end
+                  if not functions.silentaimF then 
+                        return nil 
+                  end
 
                   local closestPlayer = nil
-                  local closestDistance = SectionSettings.SilentAim.DrawSize * 2
+                  local minDistance = math.huge
                   local mousePos = me:GetMouse()
 
                   for _, player in ipairs(plrs:GetPlayers()) do
-                        if player == me or not player.Character then continue end
-                        
+                        if player == me or not player.Character then 
+                              continue 
+                        end
+
                         if SectionSettings.SilentAim.CheckTeam and player.Team == me.Team then
                               continue
                         end
-                        
+
                         if SectionSettings.SilentAim.CheckList and table.find(WhiteList, player) then
                               continue
                         end
-                        
-                        local character = player.Character
-                        local humanoidRootPart = character:FindFirstChild("HumanoidRootPart")
-                        local head = character:FindFirstChild("Head")
 
-                        if humanoidRootPart and head then
+                        local character = player.Character
+                        local head = character:FindFirstChild("Head")
+                        if head then
                               local screenPos, onScreen = camera:WorldToViewportPoint(head.Position)
                               if onScreen then
                                     local distance = (Vector2.new(mousePos.X, mousePos.Y) - Vector2.new(screenPos.X, screenPos.Y)).Magnitude
-
-                                    if distance <= SectionSettings.SilentAim.DrawSize and distance < closestDistance then
-                                          closestDistance = distance
+                                    if distance < minDistance then
+                                          minDistance = distance
                                           closestPlayer = player
                                     end
                               end
@@ -1505,13 +1672,19 @@ function SilentaimL()
                   local BulletsPerShot = tonumber(Args[7]) or 1
                   local StartPos = Args[6] or Vector3.new()
 
-                  if not Gun then return end
+                  if not Gun then 
+                        return 
+                  end
 
                   local Target = UrTargetFunc()
-                  if not Target or not Target.Character then return end
+                  if not Target or not Target.Character then 
+                        return 
+                  end
 
                   local HitPart = Target.Character:FindFirstChild("Hitpart") or Target.Character:FindFirstChild("Head")
-                  if not HitPart then return end
+                  if not HitPart then 
+                        return 
+                  end
 
                   local HitPos = HitPart.Position
 
@@ -1520,7 +1693,7 @@ function SilentaimL()
                         table.insert(Bullets, CFrame.new(StartPos, HitPos).LookVector)
                   end
 
-                  task.wait(0.1)
+                  task.wait(0.005)
 
                   if DamageEvent and typeof(DamageEvent.FireServer) == "function" then
                         for Index, LookVector in ipairs(Bullets) do
@@ -1540,12 +1713,6 @@ function SilentaimL()
                         Gun.Hitmarker:Fire(HitPart)
                   end
             end)
-
-            remotes.silentaim_circlepos = run.Heartbeat:Connect(function()
-                  remotes.silentaim_circle.Position = Vector2.new(input:GetMouseLocation().X, input:GetMouseLocation().Y)
-            end)
-      else
-            if remotes.silentaim_circle then remotes.silentaim_circle:Remove(); remotes.silentaim_circle = nil end if remotes.silentaim_circlepos then remotes.silentaim_circlepos:Disconnect(); remotes.silentaim_circlepos = nil end
       end
 end
 
@@ -2426,7 +2593,6 @@ function ConsoleText(text, typeF)
 end
 
 Commands.cmds()
-ConsoleText("[Version 1.05]", "text")
 
 ocmenukeybindLoad.MouseEnter:Connect(function()
       remotes.OCmenukeybind = true
@@ -2635,6 +2801,16 @@ end)
 
 HideButton.MouseButton1Click:Connect(function()
       MenuWhite.Visible = false
+end)
+
+StartAltsfarm.MouseButton1Click:Connect(function()
+      functions.AltsFarmF = true
+      AltsFarmL()
+end)
+
+StopAltsFarm.MouseButton1Click:Connect(function()
+      functions.AltsFarmF = false
+      AltsFarmL()
 end)
 
 function UpdateFunctions()
