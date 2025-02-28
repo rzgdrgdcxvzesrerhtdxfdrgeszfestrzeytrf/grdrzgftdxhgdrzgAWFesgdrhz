@@ -929,6 +929,10 @@ function Library()
             uicsliderbutton.CornerRadius = UDim.new(8, 8)
             return SliderButton
       end
+      
+      function Functions:MakeBodySelector(Parent)
+            
+      end
 
       function Functions:AddSkin(Parent, Name, Text)
             local SkinText = Instance.new("TextLabel")
@@ -1852,12 +1856,25 @@ function infstaminaL()
                               end
                         end)
                   else
-                        ConsoleText("Patched or your exploit not support.", "error"); functions.infstaminaF = false
-                        Animate(infstaminaTurn, false, false)
+                        remotes.infstamina = run.RenderStepped:Connect(function()
+                              if functions.infstaminaF then
+                                    local char = me.Character
+                                    if not char then return end
+                                    local hum = char:FindFirstChildOfClass("Humanoid")
+                                    if not hum then return end
+                                    local check = hum:GetAttribute("ZSPRN_M")
+                                    if not check then
+                                          local makeattribute = hum:SetAttribute("ZSPRN_M", true)
+                                    end
+                              end
+                        end)
+                        
+                        --[[ConsoleText("Patched or your exploit not support.", "error"); functions.infstaminaF = false
+                        Animate(infstaminaTurn, false, false)]]
                   end
             end
       else
-            if remotes.infstamina then remotes.infstamina:Disconnect() end; remotes.infstamina = nil
+            if remotes.infstamina then remotes.infstamina:Disconnect() end; remotes.infstamina = nil if me.Character then me.Character:FindFirstChildOfClass("Humanoid"):SetAttribute("ZSPRN_M", nil) end
       end
 end
 
