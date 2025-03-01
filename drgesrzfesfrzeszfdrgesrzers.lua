@@ -1537,6 +1537,7 @@ local Commands = {
 
 function AltsFarmL()
       local respawn = game:GetService("ReplicatedStorage"):FindFirstChild("Events"):FindFirstChild("DeathRespawn")
+      local ragdoll = game:GetService("ReplicatedStorage").Events["__DFfDD"]
       local running = nil
       local anim
       
@@ -1554,7 +1555,9 @@ function AltsFarmL()
                               if mainCharacter then
                                     local mainHRP = mainCharacter:FindFirstChild("HumanoidRootPart")
                                     if mainHRP then
-                                          anim = tween:Create(hrp, TweenInfo.new(0, Enum.EasingStyle.Linear, Enum.EasingDirection.InOut), {CFrame = CFrame.new(mainHRP.Position + mainHRP.CFrame.LookVector * 3)}):Play()
+                                          ragdoll:FireServer("__--r", hrp.Velocity, hrp.CFrame)
+                                          task.wait(0.1)
+                                          anim = tween:Create(hrp, TweenInfo.new(0.001, Enum.EasingStyle.Linear, Enum.EasingDirection.InOut), {CFrame = CFrame.new(mainHRP.Position + mainHRP.CFrame.LookVector * 3)}):Play()
                                           hum:GetPropertyChangedSignal("Health"):Connect(function()
                                                 if functions.AltsFarmF then      
                                                       hum.Health = 0
