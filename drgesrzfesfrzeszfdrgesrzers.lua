@@ -1908,7 +1908,7 @@ function SilentaimL()
                                     randpart = SectionSettings.SilentAim.TargetPart[rand]
                                     LastTick = tick()
                              end
-                             part = randpart or SectionSettings.SilentAim.TargetPart[1] or "Head"
+                             part = randpart or SectionSettings.SilentAim.TargetPart[1]
                         end
                         
                         local character = player.Character
@@ -2821,7 +2821,7 @@ function aimbotL()
                                     randomPart = SectionSettings.AimBot.TargetPart[rand]
                                     lastRandomTick = tick()
                               end
-                              part = randomPart or SectionSettings.AimBot.TargetPart[1] or "Head"
+                              part = randomPart or SectionSettings.AimBot.TargetPart[1]
                         end
 
                         if part and humanoid and humanoid.Health > 0 and canusing then
