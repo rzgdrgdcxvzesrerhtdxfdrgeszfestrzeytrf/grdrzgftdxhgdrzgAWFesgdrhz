@@ -8,6 +8,9 @@ local content = game:GetService("ContentProvider")
 local run = game:GetService("RunService")
 local camera = game.Workspace.CurrentCamera
 
+local RandSound = {2084290015, 5853668794, 18331725459, 18331725459, 18331725459, 7056720271, 6651571134, 4910368846, 4910368846, 102630287147529, 102630287147529, 15798534597, 6435412998}
+local rand = math.random(1, #RandSound)
+
 local PlayersList = {}
 local WhiteList = {}
 
@@ -34,7 +37,7 @@ local FOLDER = {
       }
 }
 
-local cmds = {"leave", "reset", "clear", "close", "cmds"}
+local cmds = {"clear", "close", "cmds"}
 
 local functions = {
       FullbrightF = false,
@@ -57,7 +60,8 @@ local functions = {
       lockpickF = false,
       atmF = false,
       RagebotF = false,
-      WallbangF = false
+      WallbangF = false,
+      AltsFarmF = false
 }
 
 local SectionSettings = {
@@ -65,7 +69,7 @@ local SectionSettings = {
             Draw = nil,
             DrawSize = 50,
             DrawColor = nil,
-            TargetPart = nil,
+            TargetPart = {"Head"},
             CheckWall = nil,
             CheckTeam = false,
             CheckList = false,
@@ -75,23 +79,22 @@ local SectionSettings = {
             Draw = nil,
             DrawSize = 50,
             DrawColor = Color3.new(1, 0, 0),
-            TargetPart = "Head",
+            TargetPart = {"Head"},
             CheckWall = nil,
             CheckTeam = false,
             CheckWhiteList = false,
             CheckDistance = nil,
-            Velocity = nil
+            Velocity = false
       },
       MeleeAura = {
             ShowAnim = nil,
-            TargetPart = "Head",
+            TargetPart = {"Head"},
             AutoAttack = nil,
             CheckTeam = false,
             CheckWhiteList = false,
             Distance = 20
       },
       RageBot = {
-            CheckTeam = false,
             CheckWhiteList = false
       },
       RocketControl = {
@@ -119,6 +122,10 @@ local remotes = {
       aimbot_circlepos = nil,
       Speed_RUN = nil,
       aimbot_button = nil,
+      meleeaura_body = nil,
+      Aimbot_body = nil,
+      Silentaim_body = nil,
+      Altsfarm_respawnRUN = nil,
 }
 
 function Decrypt(value)
@@ -163,7 +170,7 @@ game:GetService("StarterGui"):SetCore("SendNotification", {
 
 local sound = Instance.new("Sound")
 sound.Parent = game:GetService("SoundService")
-sound.SoundId = "rbxassetid://2084290015"
+sound.SoundId = "rbxassetid://"..RandSound[rand]
 sound:Play()
 sound.Ended:Connect(function()
       sound:Destroy()
@@ -180,7 +187,7 @@ OCmenubutton.Parent = Gui
 OCmenubutton.Name = "Open/Close"
 OCmenubutton.BackgroundColor3 = Color3.new(0, 0, 0)
 OCmenubutton.Position = UDim2.new(0.368, 0, -0.07, 0)
-OCmenubutton.Size = UDim2.new(0, 20, 0, 20)
+OCmenubutton.Size = UDim2.new(0.025, 0, 0.048, 0)
 OCmenubutton.Image = "rbxassetid://83501732181441"
 OCmenubutton.Visible = true
 
@@ -729,7 +736,7 @@ function Library()
             return SectionButtonTurn
       end
 
-      function Functions:MakeSectionCheckButton(Parent, Name, Text, Position, TYPE, TYPENAME, slider, SliderText, SliderPosition, minimal, maximal, FUNC)
+      function Functions:MakeSectionCheckButton(Parent, Name, Text, Position, TYPE, TYPENAME, slider, SliderText, SliderPosition, startertext, minimal, maximal, FUNC)
             local SectionCheckText = Instance.new("TextLabel")
             SectionCheckText.Parent = Parent
             SectionCheckText.Name = Name
@@ -828,9 +835,16 @@ function Library()
                   local uicsectionsliderbutton = Instance.new("UICorner")
                   uicsectionsliderbutton.Parent = SectionSliderButton
                   uicsectionsliderbutton.CornerRadius = UDim.new(8, 8)
-
-                  local MINN = 0.0001 * SectionSliderButton.AbsoluteSize.X
-                  local MAXX = SectionSliderButton.AbsoluteSize.X
+                  
+                  local VALUE = Instance.new("TextLabel")
+                  VALUE.Parent = SectionSlider
+                  VALUE.Name = SliderText
+                  VALUE.BackgroundTransparency = 1
+                  VALUE.Position = UDim2.new(2.475, 0, 0.156, 0)
+                  VALUE.Size = UDim2.new(0, 35, 0, 29)
+                  VALUE.TextScaled = true
+                  VALUE.TextColor3 = Color3.new(1, 1, 1)
+                  VALUE.Text = startertext
 
                   local minim = minimal
                   local maxim = maximal
@@ -850,18 +864,20 @@ function Library()
                   input.InputChanged:Connect(function(key)
                         if canuse and (key.UserInputType == Enum.UserInputType.MouseMovement or key.UserInputType == Enum.UserInputType.Touch) then
                               local mpos = input:GetMouseLocation().X
-                              local SCALE = math.clamp((mpos - SectionSliderControl.AbsolutePosition.X)/SectionSliderControl.AbsoluteSize.X,0.08,1)
-                              SectionSliderButton.Size = UDim2.fromScale(SCALE, 1)
+                              local SCALE = (mpos - SectionSliderControl.AbsolutePosition.X)/SectionSliderControl.AbsoluteSize.X
+                              local setscale = math.clamp(SCALE, 0.08, 1)
+                              SectionSliderButton.Size = UDim2.fromScale(setscale, 1)
                               local value
                               value = math.clamp(minim + (SCALE * (maxim - minim)), minim, maximal)
-                              FUNC(value)
+                              VALUE.Text = math.floor(value)
+                              FUNC(math.floor(value))
                         end
                   end)
             end
             return SectionCheckImage
       end
 
-      function Functions:MakeSectionClickButton(Parent, Name, Text, Position, Size)
+      function Functions:MakeSectionClickButton(Parent, Name, Text, Position, Size, func)
             local SectionClickText = Instance.new("TextLabel")
             SectionClickText.Parent = Parent
             SectionClickText.Name = Name
@@ -884,6 +900,13 @@ function Library()
             SectionClickButton.Size = UDim2.new(0, 30, 0, 30)
             SectionClickButton.Image = "rbxassetid://2769398451"
             SectionClickButton.Visible = true
+            
+            SectionClickButton.MouseButton1Click:Connect(function()
+                  if func then
+                        func()
+                  end
+            end)
+            
             return SectionClickButton
       end
 
@@ -899,7 +922,7 @@ function Library()
             return ColorWheelButton
       end
 
-      function Functions:MakeSectionSlider(Parent, Text, Position)
+      function Functions:MakeSectionSlider(Parent, Text, Position, startertext, min, max, func)
             local SliderText = Instance.new("TextLabel")
             SliderText.Parent = Parent
             SliderText.Name = "Slider"
@@ -942,7 +965,216 @@ function Library()
             local uicsliderbutton = Instance.new("UICorner")
             uicsliderbutton.Parent = SliderButton
             uicsliderbutton.CornerRadius = UDim.new(8, 8)
+            
+            local VALUE = Instance.new("TextLabel")
+            VALUE.Parent = SliderText
+            VALUE.Name = Text
+            VALUE.BackgroundTransparency = 1
+            VALUE.Position = UDim2.new(2.488, 0, 0.078, 0)
+            VALUE.Size = UDim2.new(0, 35, 0, 29)
+            VALUE.TextScaled = true
+            VALUE.TextColor3 = Color3.new(1, 1, 1)
+            VALUE.Text = startertext
+            
+            local canuse = false
+            
+            SliderButton.MouseButton1Down:Connect(function()
+                  canuse = true
+            end)
+
+            input.InputEnded:Connect(function(key)
+                  if key.UserInputType == Enum.UserInputType.MouseButton1 or key.UserInputType == Enum.UserInputType.Touch then
+                        canuse = false
+                  end
+            end)
+
+            input.InputChanged:Connect(function(key)
+                  if canuse and (key.UserInputType == Enum.UserInputType.MouseMovement or key.UserInputType == Enum.UserInputType.Touch) then
+                        local mpos = input:GetMouseLocation().X
+                        local SCALE = (mpos - SliderControl.AbsolutePosition.X)/SliderControl.AbsoluteSize.X
+                        local setscale = math.clamp(SCALE, 0.08, 1)
+                        SliderButton.Size = UDim2.fromScale(setscale, 1)
+                        local value
+                        value = math.clamp(min + (SCALE * (max - min)), min, max)
+                        VALUE.Text = math.floor(value)
+                        func(math.floor(value))
+                  end
+            end)
+            
             return SliderButton
+      end
+      
+      function Functions:MakeBodySelector(func)
+            local Body = Instance.new("Frame")
+            Body.Parent = Gui
+            Body.Name = "Body"
+            Body.BackgroundColor3 = Color3.new(0, 0, 0)
+            Body.Position = UDim2.new(0.715, 0, 0.131, 0)
+            Body.Size = UDim2.new(0.3, 0, 0.3, 0)
+            Body.Visible = true
+
+            local uiabody = Instance.new("UIAspectRatioConstraint")
+            uiabody.Parent = Body
+            uiabody.AspectRatio = 1
+            uiabody.AspectType = Enum.AspectType.FitWithinMaxSize
+            uiabody.DominantAxis = Enum.DominantAxis.Width
+
+            local Head = Instance.new("TextButton")
+            Head.Parent = Body
+            Head.Name = "Head"
+            Head.BackgroundColor3 = Color3.new(1,1 , 1)
+            Head.BorderColor3 = Color3.new(0, 0, 0)
+            Head.BorderSizePixel = 2
+            Head.Position = UDim2.new(0.394, 0, 0.055, 0)
+            Head.Size = UDim2.new(0.203, 0, 0.203, 0)
+            Head.Text = ""
+            Head.Visible = true
+
+            local Torso = Instance.new("TextButton")
+            Torso.Parent = Body
+            Torso.Name = "Torso"
+            Torso.Position = UDim2.new(0.321, 0, 0.261, 0)
+            Torso.Size = UDim2.new(0.344, 0, 0.344, 0)
+            Torso.BackgroundColor3 = Color3.new(1, 1, 1)
+            Torso.BorderColor3 = Color3.new(0, 0, 0)
+            Torso.BorderSizePixel = 1
+            Torso.Text = ""
+            Torso.Visible = true
+
+            local LeftArm = Instance.new("TextButton")
+            LeftArm.Parent = Body
+            LeftArm.Name = "LeftArm"
+            LeftArm.BackgroundColor3 = Color3.new(1,1 , 1)
+            LeftArm.Position = UDim2.new(0.665, 0, 0.261, 0)
+            LeftArm.Size = UDim2.new(0.172, 0, 0.344, 0)
+            LeftArm.Text = ""
+            LeftArm.Visible = true
+
+            local RightArm = Instance.new("TextButton")
+            RightArm.Parent = Body
+            RightArm.Name = "RightArm"
+            RightArm.BackgroundColor3 = Color3.new(1, 1, 1)
+            RightArm.Position = UDim2.new(0.147, 0, 0.261, 0)
+            RightArm.Size = UDim2.new(0.172, 0, 0.344, 0)
+            RightArm.Text = ""
+            RightArm.Visible = true
+
+            local LeftLeg = Instance.new("TextButton")
+            LeftLeg.Parent = Body
+            LeftLeg.Name = "LeftLeg"
+            LeftLeg.BackgroundColor3 = Color3.new(1, 1, 1)
+            LeftLeg.Position = UDim2.new(0.5, 0, 0.605, 0)
+            LeftLeg.Size = UDim2.new(0.172, 0, 0.344, 0)
+            LeftLeg.Text = ""
+            LeftLeg.Visible = true
+
+            local RightLeg = Instance.new("TextButton")
+            RightLeg.Parent = Body
+            RightLeg.Name = "RightLeg"
+            RightLeg.BackgroundColor3 = Color3.new(1, 1, 1)
+            RightLeg.Position = UDim2.new(0.321, 0, 0.605, 0)
+            RightLeg.Size = UDim2.new(0.163, 0, 0.344, 0)
+            RightLeg.Text = ""
+            RightLeg.Visible = true
+
+            local check1 = table.find(func, "Head")
+            local check2 = table.find(func, "Torso")
+            local check3 = table.find(func, "Left Arm")
+            local check4 = table.find(func, "Right Arm")
+            local check5 = table.find(func, "Left Leg")
+            local check6 = table.find(func, "Right Leg")
+
+            if check1 then
+                  Head.BackgroundColor3 = Color3.new(0.0666667, 1, 0)
+            end
+
+            if check2 then
+                  Torso.BackgroundColor3 = Color3.new(0, 1, 0.0313725)
+            end
+
+            if check3 then
+                  LeftArm.BackgroundColor3 = Color3.new(0.0666667, 1, 0)
+            end
+
+            if check4 then
+                  RightArm.BackgroundColor3 = Color3.new(0.133333, 1, 0)
+            end
+
+            if check5 then
+                  LeftLeg.BackgroundColor3 = Color3.new(0.101961, 1, 0)
+            end
+
+            if check6 then
+                  RightLeg.BackgroundColor3 = Color3.new(0.0156863, 1, 0)
+            end
+
+            Head.MouseButton1Click:Connect(function()
+                  local check = table.find(func, "Head")
+                  if not check then
+                        table.insert(func, "Head")
+                        Head.BackgroundColor3 = Color3.new(0.0509804, 1, 0)
+                  else
+                        table.remove(func, check)
+                        Head.BackgroundColor3 = Color3.new(1, 1, 1)
+                  end
+            end)
+
+            Torso.MouseButton1Click:Connect(function()
+                  local check = table.find(func, "Torso")
+                  if not check then
+                        table.insert(func, "Torso")
+                        Torso.BackgroundColor3 = Color3.new(0.0666667, 1, 0)
+                  else
+                        table.remove(func, check)
+                        Torso.BackgroundColor3 = Color3.new(1, 1, 1)
+                  end
+            end)
+
+            LeftArm.MouseButton1Click:Connect(function()
+                  local check = table.find(func, "Left Arm")
+                  if not check then
+                        table.insert(func, "Left Arm")
+                        LeftArm.BackgroundColor3 = Color3.new(0, 1, 0.0666667)
+                  else
+                        table.remove(func, check)
+                        LeftArm.BackgroundColor3 = Color3.new(1, 1, 1)
+                  end
+            end)
+
+            RightArm.MouseButton1Click:Connect(function()
+                  local check = table.find(func, "Right Arm")
+                  if not check then
+                        table.insert(func, "Right Arm")
+                        RightArm.BackgroundColor3 = Color3.new(0, 1, 0.0823529)
+                  else
+                        table.remove(func, check)
+                        RightArm.BackgroundColor3 = Color3.new(1, 1, 1)
+                  end
+            end)
+
+            LeftLeg.MouseButton1Click:Connect(function()
+                  local check = table.find(func, "Left Leg")
+                  if not check then
+                        table.insert(func, "Left Leg")
+                        LeftLeg.BackgroundColor3 = Color3.new(0, 1, 0.0666667)
+                  else
+                        table.remove(func, check)
+                        LeftLeg.BackgroundColor3 = Color3.new(1, 1, 1)
+                  end
+            end)
+
+            RightLeg.MouseButton1Click:Connect(function()
+                  local check = table.find(func, "Right Leg")
+                  if not check then
+                        table.insert(func, "Right Leg")
+                        RightLeg.BackgroundColor3 = Color3.new(0.0156863, 1, 0)
+                  else
+                        table.remove(func, check)
+                        RightLeg.BackgroundColor3 = Color3.new(1, 1, 1)
+                  end
+            end)
+
+            return Body
       end
 
       function Functions:AddSkin(Parent, Name, Text)
@@ -1010,9 +1242,9 @@ local SettingsMenu = Tab:MakeTab("Settings")
 local ConfigMenu = Tab:MakeTab("Config")
 local SECTION1 = Functions:MakeSection(MainScroll, UDim2.new(0.016, 0, 0.001, 0), UDim2.new(0, 300, 0, 380))
 local SECTION2 = Functions:MakeSection(MainScroll, UDim2.new(0.532, 0, 0.001, 0), UDim2.new(0, 300, 0, 420))
-local SECTION3 = Functions:MakeSection(MainScroll, UDim2.new(0.531, 0, 0.513, 0), UDim2.new(0, 300, 0, 110))
+local SECTION3 = Functions:MakeSection(MainScroll, UDim2.new(0.529, 0, 0.473, 0), UDim2.new(0, 300, 0, 110))
 local SECTION4 = Functions:MakeSection(MainScroll, UDim2.new(0.015, 0, 0.347, 0), UDim2.new(0, 300, 0, 350))
-local SECTION5 = Functions:MakeSection(MainScroll, UDim2.new(0.531, 0, 0.371, 0), UDim2.new(0, 300, 0, 150))
+local SECTION5 = Functions:MakeSection(MainScroll, UDim2.new(0.531, 0, 0.371, 0), UDim2.new(0, 300, 0, 100))
 local SECTION6 = Functions:MakeSection(VisualMenu, UDim2.new(0.018, 0, 0.02, 0), UDim2.new(0, 300, 0, 500))
 
 local FullbrightTurn = Functions:MakeTextButton(WorldMenu, "Fullbright", "Fullbright", UDim2.new(0.016, 0, 0.022, 0), functions, "FullbrightF", function()
@@ -1046,7 +1278,7 @@ end)
 local infpepperTurn = Functions:MakeTextButton(MainScroll, "infpepper", "Inf pepper spray", UDim2.new(0.016, 0, 0.704, 0), functions, "infpepperF", function()
       infpepperL()
 end)
-local norecoilTurn = Functions:MakeTextButton(MainScroll, "norecoil", "No recoil", UDim2.new(0.523, 0, 0.624, 0), functions, "norecoilF")
+local norecoilTurn = Functions:MakeTextButton(MainScroll, "norecoil", "No recoil", UDim2.new(0.521, 0, 0.582, 0), functions, "norecoilF")
 local WallbangTurn = Functions:MakeTextButton(MainScroll, "Wallbang", "Wallbang", UDim2.new(0.016, 0, 0.746, 0), functions, "WallbangF", function()
       WallbangL()
 end)
@@ -1059,14 +1291,21 @@ local glassarmscolor = Functions:MakeColorWheelButton(VisualMenu, UDim2.new(0.93
 local silentaimTurn = Functions:MakeSectionButton(SECTION1, "silentaim", "Silent aim", UDim2.new(0.03, 0, 0.022, 0), UDim2.new(0, 160, 0, 32), functions, "silentaimF", function()
       SilentaimL()
 end)
-local silentaimdraw = Functions:MakeSectionCheckButton(SECTION1, "Draw", "Draw circle", UDim2.new(0.029, 0, 0.145, 0), SectionSettings.SilentAim, "Draw", true, "Size", UDim2.new(0, 0, 1.367, 0), 50, 300, function(val)
+local silentaimdraw = Functions:MakeSectionCheckButton(SECTION1, "Draw", "Draw circle", UDim2.new(0.029, 0, 0.145, 0), SectionSettings.SilentAim, "Draw", true, "Size", UDim2.new(0, 0, 1.367, 0), tonumber(SectionSettings.SilentAim.DrawSize), 20, 300, function(val)
       SectionSettings.SilentAim.DrawSize = math.floor(val)
       if remotes.silentaim_circle then
             remotes.silentaim_circle.Radius = math.floor(val)
       end
 end)
 local silentaimdrawcolor = Functions:MakeColorWheelButton(SECTION1, UDim2.new(0.783, 0, 0.145, 0))
-local silentaimpart = Functions:MakeSectionClickButton(SECTION1, "TargetPart", "Target part", UDim2.new(0.029, 0, 0.398, 0), UDim2.new(0, 160, 0, 32))
+local silentaimpart = Functions:MakeSectionClickButton(SECTION1, "TargetPart", "Target part", UDim2.new(0.029, 0, 0.398, 0), UDim2.new(0, 160, 0, 32), function()
+      if remotes.Silentaim_body then
+            remotes.Silentaim_body:Destroy()
+            remotes.Silentaim_body = false
+      else
+            remotes.Silentaim_body = Functions:MakeBodySelector(SectionSettings.SilentAim.TargetPart)
+      end
+end)
 local silentaimwallcheck = Functions:MakeSectionCheckButton(SECTION1, "CheckWall", "Check wall", UDim2.new(0.029, 0, 0.523, 0), SectionSettings.SilentAim, "CheckWall", false, "", nil, nil, nil)
 local silentaimteamcheck = Functions:MakeSectionCheckButton(SECTION1, "CheckTeam", "Check team", UDim2.new(0.029, 0, 0.645, 0), SectionSettings.SilentAim, "CheckTeam", false, "", nil, nil, nil)
 local silentaimwhitelistcheck = Functions:MakeSectionCheckButton(SECTION1, "CheckList", "Check white list", UDim2.new(0.029, 0, 0.766, 0), SectionSettings.SilentAim, "CheckList", false, "", nil, nil, nil)
@@ -1076,14 +1315,21 @@ local silentaimcheckdistance = Functions:MakeSectionCheckButton(SECTION1, "Check
 local aimbotTurn = Functions:MakeSectionButton(SECTION2, "aimbot", "Aim bot", UDim2.new(0.03, 0, 0.022, 0), UDim2.new(0, 160, 0, 32), functions, "aimbotF", function()
       aimbotL()
 end)
-local aimbotdraw = Functions:MakeSectionCheckButton(SECTION2, "Draw", "Draw circle", UDim2.new(0.029, 0, 0.158, 0), SectionSettings.AimBot, "Draw", true, "Size", UDim2.new(0, 0, 1.367, 0), 50, 300, function(val)
+local aimbotdraw = Functions:MakeSectionCheckButton(SECTION2, "Draw", "Draw circle", UDim2.new(0.029, 0, 0.158, 0), SectionSettings.AimBot, "Draw", true, "Size", UDim2.new(0, 0, 1.367, 0), tonumber(SectionSettings.AimBot.DrawSize), 20, 300, function(val)
       SectionSettings.AimBot.DrawSize = math.floor(val)
       if remotes.aimbot_circle then
             remotes.aimbot_circle.Radius = math.floor(val)
       end
 end)
 local aimbotdrawcolor = Functions:MakeColorWheelButton(SECTION2, UDim2.new(0.783, 0, 0.152, 0))
-local aimbottargetpart = Functions:MakeSectionClickButton(SECTION2, "TargetPart", "Target part", UDim2.new(0.029, 0, 0.369, 0), UDim2.new(0, 160, 0, 32))
+local aimbottargetpart = Functions:MakeSectionClickButton(SECTION2, "TargetPart", "Target part", UDim2.new(0.029, 0, 0.369, 0), UDim2.new(0, 160, 0, 32), function()
+      if remotes.Aimbot_body then
+            remotes.Aimbot_body:Destroy()
+            remotes.Aimbot_body = false
+      else
+            remotes.Aimbot_body = Functions:MakeBodySelector(SectionSettings.AimBot.TargetPart)
+      end
+end)
 local aimbotcheckwall = Functions:MakeSectionCheckButton(SECTION2, "CheckWall", "Check wall", UDim2.new(0.025, 0, 0.473, 0), SectionSettings.AimBot, "CheckWall")
 local aimbotcheckteam = Functions:MakeSectionCheckButton(SECTION2, "CheckTeam", "Check team", UDim2.new(0.025, 0, 0.586, 0), SectionSettings.AimBot, "CheckTeam")
 local aimbotwhitelistcheck = Functions:MakeSectionCheckButton(SECTION2, "CheckList", "Check white list", UDim2.new(0.025, 0, 0.693, 0), SectionSettings.AimBot, "CheckWhiteList")
@@ -1092,25 +1338,35 @@ local aimbotvelocity = Functions:MakeSectionCheckButton(SECTION2, "Velocity", "V
 
 --// rocket control in section \\--
 local rocketcontrolTurn = Functions:MakeSectionButton(SECTION3, "RocketControl", "Rocket control", UDim2.new(0.03, 0, 0.136, 0), UDim2.new(0, 160, 0, 32), functions, "rocket_controlF")
-local rocketcontrolspeed = Functions:MakeSectionSlider(SECTION3, "Speed", UDim2.new(0.029, 0, 0.53, 0))
+local rocketcontrolspeed = Functions:MakeSectionSlider(SECTION3, "Speed", UDim2.new(0.029, 0, 0.53, 0), tonumber(SectionSettings.RocketControl.Speed), 10, 200, function(val)
+      SectionSettings.RocketControl.Speed = val
+end)
 
 --// melee aura in section \\--
 local meleeauraTurn = Functions:MakeSectionButton(SECTION4, "meleeaura", "Melee aura", UDim2.new(0.03, 0, 0.022, 0), UDim2.new(0, 160, 0, 32), functions, "meleeauraF", function()
       meleeauraL()
 end)
 local meleeaurashomanim = Functions:MakeSectionCheckButton(SECTION4, "ShowAnim", "Show anim", UDim2.new(0.029, 0, 0.182, 0), SectionSettings.MeleeAura, "ShowAnim", false, "", nil, nil, nil)
-local meleeauratargetpart = Functions:MakeSectionClickButton(SECTION4, "TargetPart", "Target part", UDim2.new(0.029, 0, 0.329, 0), UDim2.new(0, 160, 0, 32))
+local meleeauratargetpart = Functions:MakeSectionClickButton(SECTION4, "TargetPart", "Target part", UDim2.new(0.029, 0, 0.329, 0), UDim2.new(0, 160, 0, 32), function()
+      if remotes.meleeaura_body then
+            remotes.meleeaura_body:Destroy()
+            remotes.meleeaura_body = false
+      else
+            remotes.meleeaura_body = Functions:MakeBodySelector(SectionSettings.AimBot.TargetPart)
+      end
+end)
 local meleeauraautoattack = Functions:MakeSectionCheckButton(SECTION4, "AutoAttack", "Auto attack", UDim2.new(0.029, 0, 0.468, 0))
 local meleeaurateamcheck = Functions:MakeSectionCheckButton(SECTION4, "CheckTeam", "Check team", UDim2.new(0.029, 0, 0.6, 0), SectionSettings.MeleeAura, "CheckTeam", false, "", nil, nil, nil)
 local meleeaurawhitelistcheck = Functions:MakeSectionCheckButton(SECTION4, "CheckList", "Check white list", UDim2.new(0.029, 0, 0.739, 0), SectionSettings.MeleeAura, "CheckWhiteList", false, "", nil, nil, nil)
-local neleeaurapos = Functions:MakeSectionSlider(SECTION4, "Distance", UDim2.new(0.029, 0, 0.875, 0))
+local meleeauradist = Functions:MakeSectionSlider(SECTION4, "Distance", UDim2.new(0.029, 0, 0.875, 0), tonumber(SectionSettings.MeleeAura.Distance), 5, 20, function(val)
+      SectionSettings.MeleeAura.Distance = val
+end)
 
 --// rage-bot in section \\--
-local ragebotTurn = Functions:MakeSectionButton(SECTION5, "RageBot", "Rage bot", UDim2.new(0.03, 0, 0.04, 0), UDim2.new(0, 160, 0, 32), functions, "RagebotF", function()
+local ragebotTurn = Functions:MakeSectionButton(SECTION5, "RageBot", "Rage bot", UDim2.new(0.034, 0, 0.102, 0), UDim2.new(0, 160, 0, 32), functions, "RagebotF", function()
       RagebotL()
 end)
-local ragebotteamcheck = Functions:MakeSectionCheckButton(SECTION5, "CheckTeam", "Check team", UDim2.new(0.029, 0, 0.365, 0), SectionSettings.RageBot, "CheckTeam", false, "", nil, nil, nil)
-local ragebotwhitelistcheck = Functions:MakeSectionCheckButton(SECTION5, "CheckList", "Check white list", UDim2.new(0.029, 0, 0.677, 0), SectionSettings.RageBot, "CheckWhiteList", false, "", nil, nil, nil)
+local ragebotwhitelistcheck = Functions:MakeSectionCheckButton(SECTION5, "CheckList", "Check white list", UDim2.new(0.033, 0, 0.57, 0), SectionSettings.RageBot, "CheckWhiteList", false, "", nil, nil, nil)
 
 --// esp in section \\--
 local espTurn = Functions:MakeSectionButton(SECTION6, "ESP", "ESP", UDim2.new(0.03, 0, 0.022, 0), UDim2.new(0, 160, 0, 32), functions, "EspF", function()
@@ -1158,7 +1414,6 @@ local INDEX2 = {
       {button = aimbotcheckdist, func = SectionSettings.AimBot, name = "CheckDistance"},
       {button = aimbotvelocity, func = SectionSettings.AimBot, name = "Velocity"},
       {button = ragebotwhitelistcheck, func = SectionSettings.RageBot, name = "CheckWhiteList"},
-      {button = ragebotteamcheck, func = SectionSettings.RageBot, name = "CheckTeam"},
       {button = meleeaurashomanim, func = SectionSettings.MeleeAura, name = "ShowAnim"},
       {button = meleeaurateamcheck, func = SectionSettings.MeleeAura, name = "CheckTeam"},
       {button = meleeaurawhitelistcheck, func = SectionSettings.MeleeAura, name = "CheckWhiteList"},
@@ -1406,16 +1661,92 @@ uipmelelist.PaddingLeft = UDim.new(0, 10)
 uipmelelist.PaddingRight = UDim.new(0, 0)
 uipmelelist.PaddingTop = UDim.new(0, 10)
 
+local AltsFarm = Instance.new("TextLabel")
+AltsFarm.Parent = FarmMenu
+AltsFarm.Name = "AltsFarm"
+AltsFarm.BackgroundColor3 = Color3.new(0.196078, 0.196078, 0.196078)
+AltsFarm.Position = UDim2.new(0.016, 0, 0.193, 0)
+AltsFarm.Size = UDim2.new(0, 270, 0, 32)
+AltsFarm.TextScaled = true
+AltsFarm.TextColor3 = Color3.new(1, 1, 1)
+AltsFarm.Text = "Alt accounts farm"
+AltsFarm.Visible = true
+
+local uicaltsfarm = Instance.new("UICorner")
+uicaltsfarm.Parent = AltsFarm
+uicaltsfarm.CornerRadius = UDim.new(8, 8)
+
+local NameAltsfarm = Instance.new("TextBox")
+NameAltsfarm.Parent = AltsFarm
+NameAltsfarm.Name = "Name"
+NameAltsfarm.BackgroundColor3 = Color3.new(0, 0, 0)
+NameAltsfarm.Position = UDim2.new(0, 0, 1.289, 0)
+NameAltsfarm.Size = UDim2.new(0, 270, 0, 30)
+NameAltsfarm.TextEditable = true
+NameAltsfarm.ClearTextOnFocus = false
+NameAltsfarm.TextScaled = true
+NameAltsfarm.TextColor3 = Color3.new(1, 1, 1)
+NameAltsfarm.Text = ""
+NameAltsfarm.PlaceholderColor3 = Color3.new(0.533333, 0.533333, 0.533333)
+NameAltsfarm.PlaceholderText = "Write name of main account"
+NameAltsfarm.Visible = true
+
+local uicnamealtsfarm = Instance.new("UICorner")
+uicnamealtsfarm.Parent = NameAltsfarm
+uicnamealtsfarm.CornerRadius = UDim.new(8, 8)
+
+local uisnamealtsfarm = Instance.new("UIStroke")
+uisnamealtsfarm.Parent = NameAltsfarm
+uisnamealtsfarm.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+uisnamealtsfarm.Color = Color3.new(1, 1, 1)
+uisnamealtsfarm.LineJoinMode = Enum.LineJoinMode.Round
+uisnamealtsfarm.Thickness = 1
+
+local StartAltsfarm = Instance.new("ImageButton")
+StartAltsfarm.Parent = AltsFarm
+StartAltsfarm.Name = "Start"
+StartAltsfarm.BackgroundColor3 = Color3.new(0.0156863, 1, 0)
+StartAltsfarm.Position = UDim2.new(1.065, 0, -0.039, 0)
+StartAltsfarm.Size = UDim2.new(0, 38, 0, 38)
+StartAltsfarm.Image = "http://www.roblox.com/asset/?id=90624860933410"
+StartAltsfarm.ImageColor3 = Color3.new(0, 0, 0)
+
+local uicstartaltsfarm = Instance.new("UICorner")
+uicstartaltsfarm.Parent = StartAltsfarm
+uicstartaltsfarm.CornerRadius = UDim.new(8, 8)
+
+local uisstartaltsfarm = Instance.new("UIStroke")
+uisstartaltsfarm.Parent = StartAltsfarm
+uisstartaltsfarm.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+uisstartaltsfarm.Color = Color3.new(1, 1, 1)
+uisstartaltsfarm.LineJoinMode = Enum.LineJoinMode.Round
+uisstartaltsfarm.Thickness = 1
+
+local StopAltsFarm = Instance.new("ImageButton")
+StopAltsFarm.Parent = AltsFarm
+StopAltsFarm.Name = "Stop"
+StopAltsFarm.BackgroundColor3 = Color3.new(1, 1, 1)
+StopAltsFarm.Position = UDim2.new(1.287, 0, -0.039, 0)
+StopAltsFarm.Size = UDim2.new(0, 38, 0, 38)
+StopAltsFarm.Image = "rbxassetid://101396568884110"
+StopAltsFarm.ImageColor3 = Color3.new(1, 0, 0)
+StopAltsFarm.Visible = true
+
+local uicstopaltsfarm = Instance.new("UICorner")
+uicstopaltsfarm.Parent = StopAltsFarm
+uicstopaltsfarm.CornerRadius = UDim.new(8, 8)
+
+local uisstopaltsfarm = Instance.new("UIStroke")
+uisstopaltsfarm.Parent = StopAltsFarm
+uisstopaltsfarm.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+uisstopaltsfarm.Color = Color3.new(1, 1, 1)
+uisstopaltsfarm.LineJoinMode = Enum.LineJoinMode.Round
+uisstopaltsfarm.Thickness = 1
+
 local GlockSkin = Functions:AddSkin(gunsList, "Glock", "Glock - Anime girl")
 local KatanaSkin = Functions:AddSkin(meleesList, "Katana", "Katana - hz")
 
 local Commands = {
-      leave = function()
-            game:Shutdown()
-      end,
-      reset = function()
-            me.Character.Humanoid.Health = 0
-      end,
       cmds = function()
             ConsoleText(table.concat(cmds, ", "), "succes")
       end,
@@ -1427,24 +1758,115 @@ local Commands = {
       end,
 }
 
+function AltsFarmL()
+      local respawn = game:GetService("ReplicatedStorage"):FindFirstChild("Events"):FindFirstChild("DeathRespawn")
+      local anim
+
+      function Start(Name)
+            local mainAcc = plrs:FindFirstChild(tostring(Name))
+
+            local function onCharacterAdded(character)
+                  local hum = character:FindFirstChildOfClass("Humanoid")
+                  local hrp = character:FindFirstChild("HumanoidRootPart")
+                  if not hum or not hrp then return end
+
+                  if functions.AltsFarmF then
+                        local mainCharacter = mainAcc.Character
+                        if mainCharacter then
+                              local mainHRP = mainCharacter:FindFirstChild("HumanoidRootPart")
+                              if mainHRP then
+                                    anim = tween:Create(hrp, TweenInfo.new(1.3), {CFrame = CFrame.new(mainHRP.Position + mainHRP.CFrame.LookVector * 3)})
+                                    anim:Play()
+                                    anim.Completed:Connect(function()
+                                          if functions.AltsFarmF then
+                                                anim:Play()
+                                          end
+                                    end)
+                                    hum:GetPropertyChangedSignal("Health"):Connect(function()
+                                          if functions.AltsFarmF then      
+                                                hum.Health = 0
+                                          end
+                                    end)
+                              end
+                        end
+                  end
+            end
+
+            if me.Character then
+                  if functions.AltsFarmF then
+                        onCharacterAdded(me.Character)
+                  end
+            end
+
+            me.CharacterAdded:Connect(function()
+                  if functions.AltsFarmF then
+                        wait(.5)
+                        onCharacterAdded(me.Character)
+                        local tool = me.Backpack:FindFirstChildOfClass("Tool")
+                        if tool then
+                              tool.Parent = me.Character
+                        end
+                  end
+            end)
+
+            remotes.Altsfarm_respawnRUN = run.RenderStepped:Connect(function()
+                  local char = me.Character
+                  if char then
+                        local hum = char:FindFirstChildOfClass("Humanoid")
+                        if hum and hum.Health  <= 0 then
+                              respawn:InvokeServer("KMG4R904")
+                        end
+                  end
+            end)
+      end
+
+      function Stop()
+            if anim then
+                  anim:Cancel()
+                  anim = nil
+            end
+
+            if remotes.Altsfarm_respawnRUN then
+                  remotes.Altsfarm_respawnRUN:Disconnect()
+                  remotes.Altsfarm_respawnRUN = nil
+            end
+      end
+
+      if functions.AltsFarmF == true then
+            local getname = NameAltsfarm.Text
+            local MainName = plrs:FindFirstChild(tostring(getname))
+            if MainName then
+                  Start(MainName)
+            else
+                  ConsoleText("Not found", "error")
+            end
+      else
+            Stop()
+            ConsoleText("Stop", "text")
+      end
+end
+
 function SilentaimL()
       if functions.silentaimF then
-            remotes.silentaim_circle = Drawing.new("Circle")
-            remotes.silentaim_circle.Visible = true
-            remotes.silentaim_circle.Transparency = 1
-            remotes.silentaim_circle.Thickness = 1.5
-            remotes.silentaim_circle.Color = Color3.fromRGB(255, 0, 0)
-            remotes.silentaim_circle.Filled = false
+            local part
+            local randpart = nil
+            local LastTick = tick()
+            local camera = workspace.CurrentCamera
 
             local function UrTargetFunc()
-                  if not functions.silentaimF then return nil end
+                  if not functions.silentaimF then
+                        return nil 
+                  end
 
                   local closestPlayer = nil
-                  local closestDistance = SectionSettings.SilentAim.DrawSize * 2
-                  local mousePos = me:GetMouse()
+                  local minDistance = math.huge
+
+                  local centerPos = Vector2.new(camera.ViewportSize.X / 2, camera.ViewportSize.Y / 2)
 
                   for _, player in ipairs(plrs:GetPlayers()) do
-                        if player == me or not player.Character then continue end
+                        if player == me or not player.Character then 
+                              continue 
+                        end
 
                         if SectionSettings.SilentAim.CheckTeam and player.Team == me.Team then
                               continue
@@ -1454,17 +1876,29 @@ function SilentaimL()
                               continue
                         end
 
+                        local count = #SectionSettings.SilentAim.TargetPart
+
+                        if count == 0 then
+                              part = "Head"
+                        elseif count == 1 then
+                              part = SectionSettings.SilentAim.TargetPart[count]
+                        elseif count > 1 then
+                              if tick() - LastTick >= 0.5 then
+                                    local rand = math.random(1, count)
+                                    randpart = SectionSettings.SilentAim.TargetPart[rand]
+                                    LastTick = tick()
+                              end
+                              part = randpart or SectionSettings.SilentAim.TargetPart[1]
+                        end
+
                         local character = player.Character
-                        local humanoidRootPart = character:FindFirstChild("HumanoidRootPart")
-                        local head = character:FindFirstChild("Head")
-
-                        if humanoidRootPart and head then
-                              local screenPos, onScreen = camera:WorldToViewportPoint(head.Position)
+                        local getpart = character:FindFirstChild(part)
+                        if getpart then
+                              local screenPos, onScreen = camera:WorldToViewportPoint(getpart.Position)
                               if onScreen then
-                                    local distance = (Vector2.new(mousePos.X, mousePos.Y) - Vector2.new(screenPos.X, screenPos.Y)).Magnitude
-
-                                    if distance <= SectionSettings.SilentAim.DrawSize and distance < closestDistance then
-                                          closestDistance = distance
+                                    local distance = (centerPos - Vector2.new(screenPos.X, screenPos.Y)).Magnitude
+                                    if distance < minDistance then
+                                          minDistance = distance
                                           closestPlayer = player
                                     end
                               end
@@ -1479,53 +1913,54 @@ function SilentaimL()
 
             VisualizeEvent.Event:Connect(function(...)
                   local Args = { ... }
-
                   local ShotCode = Args[2] or ""
                   local Gun = Args[4] or nil
                   local BulletsPerShot = tonumber(Args[7]) or 1
                   local StartPos = Args[6] or Vector3.new()
 
-                  if not Gun then return end
+                  if not Gun then 
+                        return 
+                  end
 
                   local Target = UrTargetFunc()
-                  if not Target or not Target.Character then return end
-
-                  local HitPart = Target.Character:FindFirstChild("Hitpart") or Target.Character:FindFirstChild("Head")
-                  if not HitPart then return end
-
-                  local HitPos = HitPart.Position
-
-                  local Bullets = {}
-                  for _ = 1, math.clamp(BulletsPerShot, 1, 100) do
-                        table.insert(Bullets, CFrame.new(StartPos, HitPos).LookVector)
+                  if not Target or not Target.Character then 
+                        return 
                   end
 
-                  task.wait(0.1)
+                  if Target and Target.Character and not Target.Character:FindFirstChildOfClass("ForceField") then
+                        local HitPart = Target.Character:FindFirstChild("Hitpart") or Target.Character:FindFirstChild(part)
+                        if not HitPart then 
+                              return 
+                        end
 
-                  if DamageEvent and typeof(DamageEvent.FireServer) == "function" then
-                        for Index, LookVector in ipairs(Bullets) do
-                              DamageEvent:FireServer(
-                                    "\240\159\141\175",
-                                    Gun,
-                                    ShotCode,
-                                    Index,
-                                    HitPart,
-                                    HitPos,
-                                    LookVector
-                              )
+                        local HitPos = HitPart.Position
+
+                        local Bullets = {}
+                        for _ = 1, math.clamp(BulletsPerShot, 1, 100) do
+                              table.insert(Bullets, CFrame.new(StartPos, HitPos).LookVector)
+                        end
+
+                        task.wait(0.005)
+
+                        if DamageEvent and typeof(DamageEvent.FireServer) == "function" then
+                              for Index, LookVector in ipairs(Bullets) do
+                                    DamageEvent:FireServer(
+                                          "\240\159\141\175",
+                                          Gun,
+                                          ShotCode,
+                                          Index,
+                                          HitPart,
+                                          HitPos,
+                                          LookVector
+                                    )
+                              end
+                        end
+
+                        if Gun:FindFirstChild("Hitmarker") then
+                              Gun.Hitmarker:Fire(HitPart)
                         end
                   end
-
-                  if Gun:FindFirstChild("Hitmarker") then
-                        Gun.Hitmarker:Fire(HitPart)
-                  end
             end)
-
-            remotes.silentaim_circlepos = run.Heartbeat:Connect(function()
-                  remotes.silentaim_circle.Position = Vector2.new(input:GetMouseLocation().X, input:GetMouseLocation().Y)
-            end)
-      else
-            if remotes.silentaim_circle then remotes.silentaim_circle:Remove(); remotes.silentaim_circle = nil end if remotes.silentaim_circlepos then remotes.silentaim_circlepos:Disconnect(); remotes.silentaim_circlepos = nil end
       end
 end
 
@@ -1665,8 +2100,18 @@ function infstaminaL()
                               end
                         end)
                   else
-                        ConsoleText("Patched or your exploit not support.", "error"); functions.infstaminaF = false
-                        Animate(infstaminaTurn, false, false)
+                        remotes.infstamina = run.RenderStepped:Connect(function()
+                              if functions.infstaminaF then
+                                    local char = me.Character
+                                    if not char then return end
+                                    local hum = char:FindFirstChildOfClass("Humanoid")
+                                    if not hum then return end
+                                    local check = hum:GetAttribute("ZSPRN_M")
+                                    if not check then
+                                          local makeattribute = hum:SetAttribute("ZSPRN_M", true)
+                                    end
+                              end
+                        end)
                   end
             end
       else
@@ -1729,9 +2174,6 @@ function RagebotL()
                         and humanoid.Health > 15 
                         and not character:FindFirstChildOfClass("ForceField") 
                   then
-                        if SectionSettings.RageBot.CheckTeam and player.Team == me.Team then
-                              continue
-                        end
 
                         if SectionSettings.RageBot.CheckWhiteList and table.find(WhiteList, player) then
                               continue
@@ -2000,7 +2442,11 @@ function meleeauraL()
 
       local remote1 = game:GetService("ReplicatedStorage").Events["XMHH.2"]
       local remote2 = game:GetService("ReplicatedStorage").Events["XMHH2.2"]
-
+      
+      local part
+      local randpart = nil
+      local LastTick = tick()
+      
       function Attack(target)
             if not (target and target:FindFirstChild("Head")) then return end
 
@@ -2022,7 +2468,7 @@ function meleeauraL()
 
             local result = remote1:InvokeServer(unpack(arg1))
 
-            task.wait(0.5)
+            task.wait(0.35 + math.random() * 0.2)
 
             if TOOL then
                   local Handle = TOOL:FindFirstChild("WeaponHandle") or TOOL:FindFirstChild("Handle") or me.Character:FindFirstChild("Right Arm")
@@ -2065,6 +2511,21 @@ function meleeauraL()
 
                                                       if SectionSettings.MeleeAura.CheckTeam and a.Team == me.Team then
                                                             continue
+                                                      end
+                                                      
+                                                      local count = #SectionSettings.MeleeAura.TargetPart
+                                                      
+                                                      if count == 0 then
+                                                            part = "Head"
+                                                      elseif count == 1 then
+                                                            part = SectionSettings.MeleeAura.TargetPart[count]
+                                                      elseif count > 1 then
+                                                            if tick() - LastTick >= .5 then
+                                                                  local rand = math.random(1, count)
+                                                                  randpart = SectionSettings.MeleeAura.TargetPart[rand]
+                                                                  LastTick = tick()
+                                                            end
+                                                            part = randpart or SectionSettings.MeleeAura.TargetPart[1]
                                                       end
 
                                                       Attack(char)
@@ -2247,9 +2708,10 @@ function aimbotL()
       if functions.aimbotF == true then
             remotes.aimbot_button = Instance.new("TextButton")
             remotes.aimbot_button.Parent = Gui
+            remotes.aimbot_button.Name = "Aim"
             remotes.aimbot_button.BackgroundColor3 = Color3.new(0, 0, 0)
             remotes.aimbot_button.Position = UDim2.new(0.689, 0, 0.521, 0)
-            remotes.aimbot_button.Size = UDim2.new(0, 25, 0, 25)
+            remotes.aimbot_button.Size = UDim2.new(0.025, 0, 0.048, 0)
             remotes.aimbot_button.TextSize = 10
             remotes.aimbot_button.TextColor3 = Color3.new(1, 1, 1)
             remotes.aimbot_button.Text = "Aim"
@@ -2265,15 +2727,17 @@ function aimbotL()
             uisaimbotbutton.Color = Color3.new(1, 1, 1)
             uisaimbotbutton.LineJoinMode = Enum.LineJoinMode.Round
             uisaimbotbutton.Thickness = 1
-
-            local aimpart = "Head"
+            
             local target = nil
             local pressed = false
             local aimtarget
             local canusing = false
             local FirstPerson = true
-            local velocity = true
             local predict = 15
+            
+            local part
+            local randpart = nil
+            local LastTick = tick()
 
             remotes.aimbot_circle = Drawing.new("Circle")
             remotes.aimbot_circle.Color = Color3.fromRGB(255, 0, 0)
@@ -2286,8 +2750,24 @@ function aimbotL()
             local function getClosestTarget()
                   local closest, closestDist = nil, SectionSettings.AimBot.DrawSize
                   for _, player in pairs(plrs:GetPlayers()) do
-                        if player ~= me and player.Character and player.Character:FindFirstChild(aimpart) then
-                              local pos, onScreen = camera:WorldToViewportPoint(player.Character[aimpart].Position)
+                        if player ~= me and player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
+                              
+                              local count = #SectionSettings.AimBot.TargetPart
+                              
+                              if count == 0 then
+                                    part = "Head"
+                              elseif count == 1 then
+                                    part = SectionSettings.AimBot.TargetPart[count]
+                              elseif count > 1 then
+                                    if tick() - LastTick >= .5 then
+                                          local rand = math.random(1, count)
+                                          randpart = SectionSettings.AimBot.TargetPart[rand]
+                                          LastTick = tick()
+                                    end
+                                    part = randpart or SectionSettings.AimBot.TargetPart[1]
+                              end
+                              
+                              local pos, onScreen = camera:WorldToViewportPoint(player.Character:FindFirstChild(part).Position)
                               if onScreen then
                                     if SectionSettings.AimBot.CheckTeam and player.Team == me.Team then
                                           continue
@@ -2323,11 +2803,11 @@ function aimbotL()
                         canusing = magnitude <= 1.5
                   end
                   if functions.aimbotF and pressed and aimtarget and aimtarget.Character then
-                        local head = aimtarget.Character:FindFirstChild(aimpart)
+                        local head = aimtarget.Character:FindFirstChild(part)
                         local humanoid = aimtarget.Character:FindFirstChild("Humanoid")
                         if head and humanoid and humanoid.Health > 0 and canusing then
                               local targetPosition = head.Position
-                              if velocity then
+                              if SectionSettings.AimBot.Velocity then
                                     targetPosition = targetPosition + head.Velocity / predict
                               end
                               camera.CFrame = camera.CFrame:Lerp(CFrame.new(camera.CFrame.p, targetPosition), 0.9)
@@ -2598,21 +3078,17 @@ HideButton.MouseButton1Click:Connect(function()
       MenuWhite.Visible = false
 end)
 
+StartAltsfarm.MouseButton1Click:Connect(function()
+      functions.AltsFarmF = true
+      AltsFarmL()
+end)
+
+StopAltsFarm.MouseButton1Click:Connect(function()
+      functions.AltsFarmF = false
+      AltsFarmL()
+end)
+
 function UpdateFunctions()
-      FullbrightL()
-      Open_doorsL()
-      nobarriersL()
-      fastpickupL()
-      infstaminaL()
-      nofalldamageL()
-      aimbotL()
-      meleeauraL()
-      RagebotL()
-      instantreloadL()
-      infpepperL()
-      glassarmsL()
-      lockpickL()
-      atmL()
 end
 
 OCmenubutton.MouseButton1Click:Connect(function()
