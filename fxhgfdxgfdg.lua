@@ -2480,10 +2480,10 @@ function meleeauraL()
                         [5] = result,
                         [6] = false,
                         [7] = Handle,
-                        [8] = target[SectionSettings.MeleeAura.TargetPart],
+                        [8] = target:FindFirstChild(part),
                         [9] = target,
                         [10] = me.Character:FindFirstChild("HumanoidRootPart").Position,
-                        [11] = target:FindFirstChild("Head").Position
+                        [11] = target:FindFirstChild(part).Position
                   }
                   remote2:FireServer(unpack(arg2))
             else
