@@ -187,7 +187,7 @@ OCmenubutton.Parent = Gui
 OCmenubutton.Name = "Open/Close"
 OCmenubutton.BackgroundColor3 = Color3.new(0, 0, 0)
 OCmenubutton.Position = UDim2.new(0.368, 0, -0.07, 0)
-OCmenubutton.Size = UDim2.new(0.025, 0, 0.048, 0)
+OCmenubutton.Size = UDim2.new(0, 30, 0, 30)
 OCmenubutton.Image = "rbxassetid://83501732181441"
 OCmenubutton.Visible = true
 
@@ -2711,7 +2711,7 @@ function aimbotL()
             remotes.aimbot_button.Name = "Aim"
             remotes.aimbot_button.BackgroundColor3 = Color3.new(0, 0, 0)
             remotes.aimbot_button.Position = UDim2.new(0.689, 0, 0.521, 0)
-            remotes.aimbot_button.Size = UDim2.new(0.025, 0, 0.048, 0)
+            remotes.aimbot_button.Size = UDim2.new(0, 30, 0, 30)
             remotes.aimbot_button.TextSize = 10
             remotes.aimbot_button.TextColor3 = Color3.new(1, 1, 1)
             remotes.aimbot_button.Text = "Aim"
