@@ -1872,7 +1872,7 @@ local Commands = {
 function FlyL()
       local event = game:GetService("ReplicatedStorage"):FindFirstChild("Events"):FindFirstChild("__DFfDD")
       
-      local flyspeed = 60
+      local flyspeed = 50
       
       local function fly(hrp)
             if functions.FlyF then
