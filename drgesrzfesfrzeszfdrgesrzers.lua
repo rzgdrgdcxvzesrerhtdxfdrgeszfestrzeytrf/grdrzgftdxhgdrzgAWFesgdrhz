@@ -21,7 +21,6 @@ local functions = {
 	nofalldamageF = false,
 	aimbotF = false,
 	rocket_controlF = false,
-	meleeauraF = false,
 	rage_botF = nil,
 	EspF = false,
 	infpepperF = false,
@@ -41,13 +40,6 @@ local SectionSettings = {
 		Smooth = false,
 		SmoothSize = 0.5,
 		Velocity = false
-	},
-	MeleeAura = {
-		ShowAnim = false,
-		TargetPart = {"Head"},
-		CheckTeam = false,
-		CheckWhiteList = false,
-		Distance = 20
 	},
 	RocketControl = {
 		Speed = 200
@@ -71,7 +63,6 @@ local remotes = {
 	aimbot_circle = nil,
 	aimbot_circlepos = nil,
 	Speed_RUN = nil,
-	meleeaura_body = nil,
 	Aimbot_body = nil,
 	ChangeBind = nil,
 }
@@ -1165,25 +1156,6 @@ local rocketcontrolspeed = Functions:MakeSectionSlider(SECTION3, "Speed", UDim2.
 	SectionSettings.RocketControl.Speed = val
 end)
 
---// melee aura in section \\--
-local meleeauraTurn = Functions:MakeSectionButton(SECTION4, "meleeaura", "Melee aura", UDim2.new(0.03, 0, 0.022, 0), UDim2.new(0, 160, 0, 32), functions, "meleeauraF", function()
-	meleeauraL()
-end)
-local meleeaurashomanim = Functions:MakeSectionCheckButton(SECTION4, "ShowAnim", "Show anim", UDim2.new(0.029, 0, 0.182, 0), SectionSettings.MeleeAura, "ShowAnim", false, "", nil, nil, nil)
-local meleeauratargetpart = Functions:MakeSectionClickButton(SECTION4, "TargetPart", "Target part", UDim2.new(0.029, 0, 0.329, 0), UDim2.new(0, 160, 0, 32), function()
-	if remotes.meleeaura_body then
-		remotes.meleeaura_body:Destroy()
-		remotes.meleeaura_body = nil
-	else
-		remotes.meleeaura_body = Functions:MakeBodySelector(SectionSettings.MeleeAura.TargetPart)
-	end
-end)
-local meleeaurateamcheck = Functions:MakeSectionCheckButton(SECTION4, "CheckTeam", "Check team", UDim2.new(0.029, 0, 0.496, 0), SectionSettings.MeleeAura, "CheckTeam", false, "", nil, nil, nil)
-local meleeaurawhitelistcheck = Functions:MakeSectionCheckButton(SECTION4, "CheckList", "Check white list", UDim2.new(0.029, 0, 0.668, 0), SectionSettings.MeleeAura, "CheckWhiteList", false, "", nil, nil, nil)
-local meleeauradis = Functions:MakeSectionSlider(SECTION4, "Distance", UDim2.new(0.058, 0, 0.825, 0), 5, 20, tonumber(SectionSettings.MeleeAura.Distance), function(val)
-	SectionSettings.MeleeAura.Distance = val
-end)
-
 --// esp in section \\--
 local espTurn = Functions:MakeSectionButton(SECTION6, "ESP", "ESP", UDim2.new(0.03, 0, 0.022, 0), UDim2.new(0, 160, 0, 32), functions, "EspF", function()
 	EspL()
@@ -1778,150 +1750,6 @@ function EspL()
 			end
 		end
 	end)
-end
-
-function meleeauraL()
-	local remote1 = game:GetService("ReplicatedStorage").Events["XMHH.2"]
-	local remote2 = game:GetService("ReplicatedStorage").Events["XMHH2.2"]
-
-	local part
-	local randpart = nil
-
-	local LastTick = tick()
-	local AttachTick = tick()
-
-	local attach = false
-	local attachcd = .1
-
-	local AttachCD = {
-		["Fists"] = .05,
-		["Knuckledusters"] = .05,
-		["Nunchucks"] = 0.05,
-		["Shiv"] = .05,
-		["Bat"] = 1,
-		["Metal-Bat"] = 1,
-		["Chainsaw"] = 2.5,
-		["Balisong"] = .05,
-		["Rambo"] = .3,
-		["Shovel"] = 3,
-		["Sledgehammer"] = 2,
-		["Katana"] = .1,
-		["Wrench"] = .1
-	}
-
-	function Attack(target)
-		if not (target and target:FindFirstChild("Head")) then return end
-
-		local mychar = me.Character
-		if not mychar then return end
-		local TOOL = mychar:FindFirstChildOfClass("Tool")
-		if not TOOL then return end
-		local AnimFolder = TOOL:FindFirstChild("AnimsFolder")
-		if not AnimFolder then return end
-		local anim = AnimFolder:FindFirstChild("Slash1")
-		if not anim then return end
-		local load = me.Character:FindFirstChildOfClass("Humanoid"):FindFirstChild("Animator"):LoadAnimation(anim)
-
-		if tick() - AttachTick >= attachcd then
-			local arg1 = {
-				[1] = "🍞",
-				[2] = tick(),
-				[3] = TOOL,
-				[4] = "43TRFWX",
-				[5] = "Normal",
-				[6] = tick(),
-				[7] = true
-			}
-
-			local result = remote1:InvokeServer(unpack(arg1))
-
-			attachcd = AttachCD[TOOL.Name] or 1/2
-
-			if SectionSettings.MeleeAura.ShowAnim then
-				local load = me.Character:FindFirstChildOfClass("Humanoid"):FindFirstChild("Animator"):LoadAnimation(anim)
-				load:Play()
-				load:AdjustSpeed(1.3)
-			end
-
-			task.wait(0.3 + math.random() * 0.2)
-
-			if TOOL then
-
-				local Handle = TOOL:FindFirstChild("WeaponHandle") or TOOL:FindFirstChild("Handle") or me.Character:FindFirstChild("Right Arm")
-				local arg2 = {
-					[1] = "🍞",
-					[2] = tick(),
-					[3] = TOOL,
-					[4] = "2389ZFX34",
-					[5] = result,
-					[6] = true,
-					[7] = Handle,
-					[8] = target[part],
-					[9] = target,
-					[10] = me.Character:FindFirstChild("HumanoidRootPart").Position,
-					[11] = target:FindFirstChild(part).Position
-				}
-				if TOOL.Name == "Chainsaw" then
-					for i = 1, 15 do
-						remote2:FireServer(unpack(arg2)) 
-					end
-				else
-					remote2:FireServer(unpack(arg2))
-				end
-				AttachTick = tick()
-			else
-				return
-			end
-		end
-	end
-
-	while functions.meleeauraF do
-		local mychar = me.Character or me.CharacterAdded:Wait()
-		if mychar then
-			local myhrp = mychar:FindFirstChild("HumanoidRootPart")
-			if myhrp then
-				for _, a in ipairs(plrs:GetPlayers()) do
-					if a ~= me then
-						local char = a.Character
-						if char then
-							local hrp = char:FindFirstChild("HumanoidRootPart")
-							if hrp then
-								local distance = (myhrp.Position - hrp.Position).Magnitude
-								if distance < SectionSettings.MeleeAura.Distance and a.Character:FindFirstChildOfClass("Humanoid").Health > 15 and not char:FindFirstChildOfClass("ForceField") then
-
-									if SectionSettings.MeleeAura.CheckWhiteList and table.find(WhiteList, a) then
-										continue
-									end
-
-									if SectionSettings.MeleeAura.CheckTeam and a.Team == me.Team then
-										continue
-									end
-
-									local count = #SectionSettings.MeleeAura.TargetPart
-
-									if count == 0 then
-										part = "Head"
-									elseif count == 1 then
-										part = SectionSettings.MeleeAura.TargetPart[#SectionSettings.MeleeAura.TargetPart]
-									elseif count > 1 then
-										if tick() - LastTick >= .2 then
-											local rand = math.random(1, count)
-											randpart = SectionSettings.MeleeAura.TargetPart[rand]
-											LastTick = tick()
-										end
-										part = randpart or SectionSettings.MeleeAura.TargetPart[1]
-									end
-
-									Attack(char)
-								end
-							end
-						end
-					end
-				end
-			end
-		end
-		run.Heartbeat:Wait()
-	end
 end
 
 function infpepperL()
