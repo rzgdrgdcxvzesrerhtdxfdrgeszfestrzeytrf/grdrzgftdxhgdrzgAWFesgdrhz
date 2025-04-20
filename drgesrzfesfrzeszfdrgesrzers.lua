@@ -1460,58 +1460,66 @@ local SilentAim = Buttons:MakeSectionDefaultButton(MakeSilentaimSection, "silent
 	if functions.SilentAim then
 		local radius = 90
 		local target = nil
-		
+
 		cockie.SilentAimCircle = Drawing.new("Circle")
 		cockie.SilentAimCircle.Color = Color3.new(1, 1, 1)
 		cockie.SilentAimCircle.Filled = false
 		cockie.SilentAimCircle.Radius = radius
 		cockie.SilentAimCircle.Thickness = 1
-		
+
 		local function GetClosest()
+			target = nil
+			local shortest = radius
 			for _, a in pairs(plrs:GetPlayers()) do
-				if a ~= me then
-					local enemychar = a.Character
-					local humenemy = enemychar:FindFirstChild("Humanoid")
-					local hrpenemy = enemychar:FindFirstChild("HumanoidRootPart")
-					local screenpos, onscreen = camera:WorldToViewportPoint(hrpenemy.Position)
-					if onscreen then
-						local dist = (Vector2.new(input:GetMouseLocation().X, input:GetMouseLocation().Y) - Vector2.new(screenpos.X, screenpos.Y)).Magnitude
-						if dist < radius then
-							target = a
+				if a ~= me and a.Character then
+					local hrp = a.Character:FindFirstChild("HumanoidRootPart")
+					if hrp then
+						local screenpos, onScreen = camera:WorldToViewportPoint(hrp.Position)
+						if onScreen then
+							local mousePos = input:GetMouseLocation()
+							local dist = (Vector2.new(mousePos.X, mousePos.Y) - Vector2.new(screenpos.X, screenpos.Y)).Magnitude
+							if dist < shortest then
+								shortest = dist
+								target = a
+							end
 						end
 					end
 				end
 			end
 		end
-		
+
 		run.RenderStepped:Connect(GetClosest)
-		
+
 		local VisualizeEvent = game:GetService("ReplicatedStorage").Events2.Visualize
 		local DamageEvent = game:GetService("ReplicatedStorage").Events["ZFKLF__H"]
-		
+
 		VisualizeEvent.Event:Connect(function(_, ShotCode, _, Gun, _, StartPos, BulletsPerShot)
 			if not Gun or not target or not target.Character then return end
 			if not me.Character or not me.Character:FindFirstChildOfClass("Tool") then return end
+
 			local parts = {"Head", "Torso"}
-			local rand = math.random(1, parts)
-			local targetpart = target.Character[parts[rand]]
-			if not targetpart then return end
-			local partpos = targetpart.Position
+			local rand = math.random(1, #parts)
+			local targetPart = target.Character:FindFirstChild(parts[rand])
+			if not targetPart then return end
+
+			local partPos = targetPart.Position
 			local Bullets = {}
 			for i = 1, math.clamp(#BulletsPerShot, 1, 100) do
-				table.insert(Bullets, CFrame.new(StartPos, partpos).LookVector)
+				table.insert(Bullets, CFrame.new(StartPos, partPos).LookVector)
 			end
 			task.wait(0.005)
-			for i, a in pairs(Bullets) do
-				DamageEvent:FireServer("🧈", Gun, ShotCode, i, targetpart, partpos, a)
+			for i, dir in pairs(Bullets) do
+				DamageEvent:FireServer("🧈", Gun, ShotCode, i, targetPart, partPos, dir)
 			end
+
 			if Gun:FindFirstChild("Hitmarker") then
-				Gun.Hitmarker:Fire(targetpart)
+				Gun.Hitmarker:Fire(targetPart)
 			end
 		end)
-		
+
 		while functions.SilentAim do
-			cockie.SilentAimCircle.Position = Vector2.new(input:GetMouseLocation().X, input:GetMouseLocation().Y)
+			local mousePos = input:GetMouseLocation()
+			cockie.SilentAimCircle.Position = Vector2.new(mousePos.X, mousePos.Y)
 			run.Heartbeat:Wait()
 		end
 	else
@@ -1521,6 +1529,7 @@ local SilentAim = Buttons:MakeSectionDefaultButton(MakeSilentaimSection, "silent
 		end
 	end
 end)
+
 local MakeInstantReloadButton = Buttons:MakeDefaultButton(_LeftBoxMainMenu, "instant reload", "Instant reload", "Instantreload", false, function()
 	local gunR_remote = game:GetService("ReplicatedStorage").Events.GNX_R
 	if functions.Instantreload then
