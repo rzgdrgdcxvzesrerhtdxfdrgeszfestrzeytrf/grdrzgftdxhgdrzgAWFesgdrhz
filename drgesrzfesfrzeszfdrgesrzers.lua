@@ -32,12 +32,28 @@ local functions = {
 	AimBot = false,
 	Instantreload = false,
 	Meleeaura = false,
+	RageBot = false,
+	TrigerBot = false,
+	RocketControl = false,
+	ESP = false,
+	ArmsChams = false,
+	ToolsChams = false,
 }
 
 local SectionSettings = {
 	SilentAim = {
 		Draw = false,
-		DrawColor = Color3.new(1, 1, 1)
+		DrawSize = 50,
+		DrawColor = Color3.new(1, 1, 1),
+		TargetParts = {},
+		CheckWall = false,
+	},
+	Aimbot = {
+		Draw = false,
+		DrawSize = 50,
+		DrawColor = Color3.new(1, 1, 1),
+		TargetParts = {},
+		CheckWall = false,
 	}
 }
 
@@ -46,6 +62,12 @@ local keybinds = {
 	Noclip = nil,
 	FakeDown = nil,
 	Meleeaura = nil,
+	RageBot = nil,
+}
+
+local Methods = {
+	Fly = "Bypass",
+	Infstamina = "Getgc"
 }
 
 local index = {}
@@ -92,7 +114,7 @@ GUI.ResetOnSpawn = false
 
 local Menu = Instance.new("Frame")
 Menu.Parent = GUI
-Menu.Name = "Menu"
+Menu.Name = Decrypt()
 Menu.BackgroundColor3 = Color3.new(0.0431373, 0.0431373, 0.0431373)
 Menu.Position = UDim2.new(0.341, 0, 0.052, 0)
 Menu.Size = UDim2.new(0.316, 0, 0.912, 0)
@@ -111,7 +133,7 @@ UISMenu.Thickness = 1.8
 
 local dragg = Instance.new("Frame")
 dragg.Parent = Menu
-dragg.Name = "dragg"
+dragg.Name = Decrypt()
 dragg.Active = true
 dragg.BackgroundColor3 = Color3.new(0.0431373, 0.0431373, 0.0431373)
 dragg.Position = UDim2.new(0, 0, 0, 0)
@@ -124,7 +146,7 @@ UICdragg.CornerRadius = UDim.new(0, 6)
 
 local Ghost_Icon = Instance.new("ImageLabel")
 Ghost_Icon.Parent = dragg
-Ghost_Icon.Name = "Icon"
+Ghost_Icon.Name = Decrypt()
 Ghost_Icon.BackgroundTransparency = 1
 Ghost_Icon.Position = UDim2.new(0, 3, 0.1, 0)
 Ghost_Icon.Size = UDim2.new(0, 35, 0, 35)
@@ -133,7 +155,7 @@ Ghost_Icon.Visible = true
 
 local Ghost_Name = Instance.new("TextLabel")
 Ghost_Name.Parent = dragg
-Ghost_Name.Name = "Ghost"
+Ghost_Name.Name = Decrypt()
 Ghost_Name.BackgroundTransparency = 1
 Ghost_Name.Position = UDim2.new(0.103, 0, 0.05, 0)
 Ghost_Name.Size = UDim2.new(0, 50, 0, 35)
@@ -148,7 +170,7 @@ UIGGhos_Name.Color = ColorSequence.new({ColorSequenceKeypoint.new(0, Color3.new(
 
 local line1 = Instance.new("Frame")
 line1.Parent = Menu
-line1.Name = "line"
+line1.Name = Decrypt()
 line1.BackgroundColor3 = Color3.new(1, 0, 0)
 line1.BorderColor3 = Color3.new(1, 0, 0)
 line1.Position = UDim2.new(0, 0, 0.055, 0)
@@ -188,7 +210,7 @@ UIPScrolling.PaddingTop = UDim.new(0.22, 0)
 
 local line2 = Instance.new("Frame")
 line2.Parent = Menu
-line2.Name = "line"
+line2.Name = Decrypt()
 line2.BackgroundColor3 = Color3.new(1, 0, 0)
 line2.BorderColor3 = Color3.new(1, 0, 0)
 line2.Position = UDim2.new(0, 0, 0.1, 0)
@@ -197,7 +219,7 @@ line2.Visible = true
 
 local MenusFolder = Instance.new("Folder")
 MenusFolder.Parent = Menu
-MenusFolder.Name = "Menus"
+MenusFolder.Name = Decrypt()
 
 function CharStats(plr)
 	local folder = rp.CharStats[plr.Name]
@@ -215,10 +237,10 @@ function Library()
 	local Buttons = {}
 	local Frames = {}
 
-	function Tabs:MakeTab(Name, Text)
+	function Tabs:MakeTab(Text)
 		local TabButton = Instance.new("TextButton")
 		TabButton.Parent = ScrollingMenus
-		TabButton.Name = Name
+		TabButton.Name = Decrypt()
 		TabButton.BackgroundTransparency = 1
 		TabButton.Size = UDim2.new(0, 68, 0, 16)
 		TabButton.TextScaled = true
@@ -239,10 +261,10 @@ function Library()
 		return TabButton
 	end
 
-	function Tabs:MakeScrollingMenu(Name, Visible, button)
+	function Tabs:MakeScrollingMenu(Visible, button)
 		local scroll = Instance.new("ScrollingFrame")
 		scroll.Parent = MenusFolder
-		scroll.Name = Name
+		scroll.Name = Decrypt()
 		scroll.BackgroundTransparency = 1
 		scroll.Position = UDim2.new(0, 0, 0.101, 0)
 		scroll.Size = UDim2.new(0.983, 0, 0.898, 0)
@@ -261,10 +283,10 @@ function Library()
 		return scroll
 	end
 
-	function Tabs:MakeFrameMenu(Name, Visible, button)
+	function Tabs:MakeFrameMenu(Visible, button)
 		local frame = Instance.new("Frame")
 		frame.Parent = MenusFolder
-		frame.Name = Name
+		frame.Name = Decrypt()
 		frame.BackgroundTransparency = 1
 		frame.Position = UDim2.new(0, 0, 0.101, 0)
 		frame.Size = UDim2.new(1, 0, 0.899, 0)
@@ -310,7 +332,7 @@ function Library()
 	function Tabs:MakeLeftBox(Parent)
 		local _Left = Instance.new("Frame")
 		_Left.Parent = Parent
-		_Left.Name = "_Left"
+		_Left.Name = Decrypt()
 		_Left.BackgroundTransparency = 1
 		_Left.Position = UDim2.new(0, 0, 0, 0)
 		_Left.Size = UDim2.new(0.5, 0, 0.898, 0)
@@ -339,7 +361,7 @@ function Library()
 	function Tabs:MakeRightBox(Parent)
 		local _Right = Instance.new("Frame")
 		_Right.Parent = Parent
-		_Right.Name = "_Right"
+		_Right.Name = Decrypt()
 		_Right.BackgroundTransparency = 1
 		_Right.Position = UDim2.new(0.5, 0, 0, 0)
 		_Right.Size = UDim2.new(0.5, 0, 0.898, 0)
@@ -368,7 +390,7 @@ function Library()
 	function Frames:MakeNotif(title, text, duration)
 		local notif = Instance.new("Frame")
 		notif.Parent = GUI
-		notif.Name = "Notif"
+		notif.Name = Decrypt()
 		notif.BackgroundColor3 = Color3.new(1, 1, 1)
 		notif.Position = UDim2.new(1, 0, 0.833, 0)
 		notif.Size = UDim2.new(0, 240, 0, 80)
@@ -397,7 +419,7 @@ function Library()
 
 		local notiftitle = Instance.new("TextLabel")
 		notiftitle.Parent = notif
-		notiftitle.Name = "title"
+		notiftitle.Name = Decrypt()
 		notiftitle.BackgroundTransparency = 1
 		notiftitle.Position = UDim2.new(0, 0, 0, 0)
 		notiftitle.Size = UDim2.new(0, 240, 0, 26)
@@ -408,7 +430,7 @@ function Library()
 
 		local notificon = Instance.new("ImageLabel")
 		notificon.Parent = notif
-		notificon.Name = "icon"
+		notificon.Name = Decrypt()
 		notificon.BackgroundTransparency = 1
 		notificon.Position = UDim2.new(0, 0, 0.338, 0)
 		notificon.Size = UDim2.new(0, 52, 0, 52)
@@ -417,7 +439,7 @@ function Library()
 
 		local notiftext = Instance.new("TextLabel")
 		notiftext.Parent = notif
-		notiftext.Name = "text"
+		notiftext.Name = Decrypt()
 		notiftext.BackgroundTransparency = 1
 		notiftext.Position = UDim2.new(0.217, 0, 0.35, 0)
 		notiftext.Size = UDim2.new(0, 188, 0, 52)
@@ -432,10 +454,10 @@ function Library()
 		end)
 	end
 
-	function Buttons:MakeDefaultButton(Parent, Name, Text, data, keybind, func)
+	function Buttons:MakeDefaultButton(Parent, Text, data, keybind, func)
 		local DText = Instance.new("TextLabel")
 		DText.Parent = Parent
-		DText.Name = Name
+		DText.Name = Decrypt()
 		DText.BackgroundTransparency = 1
 		DText.Position = UDim2.new(0.039, 0, 0.122, 0)
 		DText.Size = UDim2.new(0, 138, 0, 28)
@@ -456,7 +478,7 @@ function Library()
 
 		local DController = Instance.new("Frame")
 		DController.Parent = DText
-		DController.Name = "Controller"
+		DController.Name = Decrypt()
 		DController.BackgroundTransparency = 1
 		DController.Position = UDim2.new(1.087, 0, 0, 0)
 		DController.Size = UDim2.new(0, 57, 0, 28)
@@ -474,7 +496,7 @@ function Library()
 
 		local DButton = Instance.new("TextButton")
 		DButton.Parent = DController
-		DButton.Name = "Turn"
+		DButton.Name = Decrypt()
 		DButton.BackgroundColor3 = Color3.new(1, 0, 0)
 		DButton.Position = UDim2.new(0.07, 0, 0.071, 0)
 		DButton.Size = UDim2.new(0, 23, 0, 23)
@@ -500,7 +522,7 @@ function Library()
 		if keybind ~= false then
 			local keybindmenu = Instance.new("TextLabel")
 			keybindmenu.Parent = DController
-			keybindmenu.Name = "Keybind"
+			keybindmenu.Name = Decrypt()
 			keybindmenu.BackgroundTransparency = 1
 			keybindmenu.Position = UDim2.new(1.63, 0, 0, 0)
 			keybindmenu.Size = UDim2.new(0, 53, 0, 24)
@@ -547,12 +569,12 @@ function Library()
 					keybindmenu.Text = "..."
 					local connect
 					connect = input.InputBegan:Connect(function(key2)
-						if not table.find(ignorebind, key2.KeyCode) and not table.find(ignorebind, key2.UserInputType) and key2.KeyCode ~= Enum.KeyCode.Delete and key2.KeyCode ~= bind then
+						if not table.find(ignorebind, key2.KeyCode) and not table.find(ignorebind, key2.UserInputType) and key2.KeyCode ~= Enum.KeyCode.Delete and key2.KeyCode ~= Enum.KeyCode.Backspace and key2.KeyCode ~= bind and entered then
 							keybinds[keybind] = key2.KeyCode
 							keybindmenu.Text = tostring(keybinds[keybind]):gsub("Enum.KeyCode.", "")
 							connect:Disconnect()
 						end
-						if key2.KeyCode == Enum.KeyCode.Delete or key2.KeyCode == Enum.KeyCode.Backspace then
+						if (key2.KeyCode == Enum.KeyCode.Delete or key2.KeyCode == Enum.KeyCode.Backspace) and entered then
 							keybinds[keybind] = nil
 							keybindmenu.Text = "None"
 							connect:Disconnect()
@@ -580,7 +602,7 @@ function Library()
 	function Frames:MakeSection(Parent)
 		local section = Instance.new("Frame")
 		section.Parent = Parent
-		section.Name = "Section"
+		section.Name = Decrypt()
 		section.BackgroundTransparency = 1
 		section.Size = UDim2.new(0.9, 0, 0.3, 0)
 		section.Visible = true
@@ -597,7 +619,7 @@ function Library()
 
 		local UILsection = Instance.new("UIListLayout")
 		UILsection.Parent = section
-		UILsection.Padding = UDim.new(0.03, 0)
+		UILsection.Padding = UDim.new(0, 10)
 		UILsection.FillDirection = Enum.FillDirection.Vertical
 		UILsection.SortOrder = Enum.SortOrder.LayoutOrder
 		UILsection.HorizontalAlignment = Enum.HorizontalAlignment.Left
@@ -611,79 +633,285 @@ function Library()
 		UIPsection.PaddingLeft = UDim.new(0, 10)
 		UIPsection.PaddingRight = UDim.new(0, 0)
 		UIPsection.PaddingTop = UDim.new(0, 10)
+		
+		UILsection:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
+			section.Size = UDim2.new(0.9, 0, 0, UILsection.AbsoluteContentSize.Y + 15)
+		end)
 
 		return section
 	end
 
-	function Buttons:MakeSectionDefaultButton(Parent, Name, Text, data, keybind, func)
-		local SText = Instance.new("TextLabel")
-		SText.Parent = Parent
-		SText.Name = Name
-		SText.BackgroundTransparency = 1
-		SText.Size = UDim2.new(0, 86, 0, 23)
-		SText.TextColor3 = Color3.new(1, 1, 1)
-		SText.TextScaled = true
-		SText.Text = Text
-		SText.Visible = true
-
-		local UICSText = Instance.new("UICorner")
-		UICSText.Parent = SText
-		UICSText.CornerRadius = UDim.new(0, 6)
-
-		local UISSText = Instance.new("UIStroke")
-		UISSText.Parent = SText
-		UISSText.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
-		UISSText.Color = Color3.new(1, 0, 0)
-		UISSText.Thickness = 1
-
-		local SControl = Instance.new("Frame")
-		SControl.Parent = SText
-		SControl.BackgroundTransparency = 1
-		SControl.Position = UDim2.new(1.087, 0, 0, 0)
-		SControl.Size = UDim2.new(0, 40, 0, 25)
-		SControl.Visible = true
-
-		local UICSControl = Instance.new("UICorner")
-		UICSControl.Parent = SControl
-		UICSControl.CornerRadius = UDim.new(8, 8)
-
-		local UISSControl = Instance.new("UIStroke")
-		UISSControl.Parent = SControl
-		UISSControl.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
-		UISSControl.Color = Color3.new(1, 0, 0)
-
-		local STurn = Instance.new("TextButton")
-		STurn.Parent = SControl
-		STurn.Name = "Turn"
-		STurn.BackgroundColor3 = Color3.new(1, 0, 0)
-		STurn.Position = UDim2.new(0.07, 0, 0.085, 0)
-		STurn.Size = UDim2.new(0, 21, 0, 21)
-		STurn.Text = ""
-		STurn.Visible = true
-
-		local UICSTurn = Instance.new("UICorner")
-		UICSTurn.Parent = STurn
-		UICSTurn.CornerRadius = UDim.new(8, 8)
-
-		local UISSTurn = Instance.new("UIStroke")
-		UISSTurn.Parent = STurn
-		UISSTurn.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
-		UISSTurn.Color = Color3.new(1, 1, 1)
-		UISSTurn.Thickness = 1
-
-		STurn.MouseButton1Click:Connect(function()
+	function Buttons:MakeSectionDefaultButton(Parent, Text, data, keybind, func)
+		local text = Instance.new("TextLabel")
+		text.Parent = Parent
+		text.Name = Decrypt()
+		text.BackgroundTransparency = 1
+		text.Size = UDim2.new(0, 86, 0, 23)
+		text.TextColor3 = Color3.new(1, 1, 1)
+		text.TextScaled = true
+		text.Text = Text
+		text.Visible = true
+		
+		local UICtext = Instance.new("UICorner")
+		UICtext.Parent = text
+		UICtext.CornerRadius = UDim.new(0, 6)
+		
+		local UIStext = Instance.new("UIStroke")
+		UIStext.Parent = text
+		UIStext.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+		UIStext.Color = Color3.new(1, 0, 0)
+		UIStext.Thickness = 1
+		
+		local Turnbutton = Instance.new("TextButton")
+		Turnbutton.Parent = text
+		Turnbutton.Name = Decrypt()
+		Turnbutton.BackgroundColor3 = Color3.new(1, 0, 0)
+		Turnbutton.Position = UDim2.new(1.174, 0, -0.043, 0)
+		Turnbutton.Size = UDim2.new(0, 25, 0, 25)
+		Turnbutton.Text = ""
+		Turnbutton.Visible = true
+		
+		local UICTurnbutton = Instance.new("UICorner")
+		UICTurnbutton.Parent = Turnbutton
+		UICTurnbutton.CornerRadius = UDim.new(8, 8)
+		
+		local UISTurnbutton = Instance.new("UIStroke")
+		UISTurnbutton.Parent = Turnbutton
+		UISTurnbutton.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+		UISTurnbutton.Color = Color3.new(1, 1, 1)
+		
+		Turnbutton.MouseButton1Click:Connect(function()
 			functions[data] = not functions[data]
-			AnimateButtons2(STurn, functions[data])
+			Turnbutton.BackgroundColor3 = functions[data] and Color3.new(0, 1, 0.0313725) or Color3.new(1, 0, 0)
 			func()
 		end)
-
-		return SText
+		
+		if keybind ~= false then
+			local kbind = Instance.new("TextLabel")
+			kbind.Parent = text
+			kbind.Name = Decrypt()
+			kbind.BackgroundTransparency = 1
+			kbind.Position = UDim2.new(1.55, 0, 0, 0)
+			kbind.Size = UDim2.new(0, 35, 0, 23)
+			kbind.TextColor3 = Color3.new(1, 1, 1)
+			kbind.TextScaled = true
+			if keybinds[keybind] == nil then
+				kbind.Text = "None"
+			else
+				kbind.Text = tostring(keybinds[keybind]):gsub("Enum.KeyCode.", "")
+			end
+			
+			local UICkbind = Instance.new("UICorner")
+			UICkbind.Parent = kbind
+			UICkbind.CornerRadius = UDim.new(0, 5)
+			
+			local UISkbind = Instance.new("UIStroke")
+			UISkbind.Parent = kbind
+			UISkbind.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+			UISkbind.Color = Color3.new(1, 0, 0)
+			UISkbind.Thickness = 1
+			
+			local entered = false
+			
+			kbind.MouseEnter:Connect(function()
+				entered = true
+			end)
+			
+			kbind.MouseLeave:Connect(function()
+				entered = false
+				if keybinds[keybind] == nil then
+					kbind.Text = "None"
+				else
+					kbind.Text = tostring(keybinds[keybind]):gsub("Enum.KeyCode.", "")
+				end
+			end)
+			
+			input.InputBegan:Connect(function(key, gp)
+				if gp then return end
+				if entered and key.UserInputType == Enum.UserInputType.MouseButton1 then
+					kbind.Text = "..."
+					local connect
+					connect = input.InputBegan:Connect(function(key2)
+						if not table.find(ignorebind, key2.KeyCode) and not table.find(ignorebind, key2.UserInputType) and key2.KeyCode ~= Enum.KeyCode.Backspace and key2.KeyCode ~= Enum.KeyCode.Delete and key2.KeyCode ~= bind and entered then
+							keybinds[keybind] = key2.KeyCode
+							kbind.Text = tostring(keybinds[keybind]):gsub("Enum.KeyCode.", "")
+							connect:Disconnect()
+						end
+						if (key2.KeyCode == Enum.KeyCode.Delete or key2.KeyCode == Enum.KeyCode.Backspace) and entered then
+							keybinds[keybind] = nil
+							kbind.Text = "None"
+							connect:Disconnect()
+						end
+					end)
+				end
+			end)
+			
+			input.InputBegan:Connect(function(key, gp)
+				if gp then return end
+				if key.KeyCode == keybinds[keybind] then
+					functions[data] = not functions[data]
+					Turnbutton.BackgroundColor3 = functions[data] and Color3.new(0.133333, 1, 0) or Color3.new(1, 0, 0)
+					func()
+				end
+			end)
+		end
+		
+		return Turnbutton
+	end
+	
+	function Buttons:MakeSectionCheckboxButton(Parent, Text, funcname, data)
+		local text = Instance.new("TextLabel")
+		text.Parent = Parent
+		text.Name = Decrypt()
+		text.BackgroundTransparency = 1
+		text.Size = UDim2.new(0, 86, 0, 23)
+		text.TextColor3 = Color3.new(1, 1, 1)
+		text.TextScaled = true
+		text.Text = Text
+		text.Visible = true
+		
+		local UICtext = Instance.new("UICorner")
+		UICtext.Parent = text
+		UICtext.CornerRadius = UDim.new(0, 6)
+		
+		local UIStext = Instance.new("UIStroke")
+		UIStext.Parent = text
+		UIStext.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+		UIStext.Color = Color3.new(1, 0, 0)
+		UIStext.Thickness = 1
+		
+		local Checkbox = Instance.new("ImageButton")
+		Checkbox.Parent = text
+		Checkbox.Name = Decrypt()
+		Checkbox.BackgroundTransparency = 1
+		Checkbox.Position = UDim2.new(1.186, 0, -0.043, 0)
+		Checkbox.Size = UDim2.new(0, 25, 0, 25)
+		Checkbox.Image = "rbxassetid://6218581738"
+		Checkbox.Visible = true
+		
+		local UICCheckbox = Instance.new("UICorner")
+		UICCheckbox.Parent = Checkbox
+		UICCheckbox.CornerRadius = UDim.new(0, 5)
+		
+		local UISCheckbox = Instance.new("UIStroke")
+		UISCheckbox.Parent = Checkbox
+		UISCheckbox.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+		UISCheckbox.Color = Color3.new(1, 0, 0)
+		UISCheckbox.Thickness = 1
+		
+		if SectionSettings[funcname][data] == true then
+			Checkbox.ImageTransparency = 0
+		else
+			Checkbox.ImageTransparency = 1
+		end
+		
+		Checkbox.MouseButton1Click:Connect(function()
+			SectionSettings[funcname][data] = not SectionSettings[funcname][data]
+			Checkbox.ImageTransparency = SectionSettings[funcname][data] and 0 or 1
+		end)
+		
+		return Checkbox
+	end
+	
+	function Frames:MakeSectionSlider(Parent, Text)
+		local text = Instance.new("TextLabel")
+		text.Parent = Parent
+		text.Name = Decrypt()
+		text.BackgroundTransparency = 1
+		text.Size = UDim2.new(0, 47, 0, 27)
+		text.TextColor3 = Color3.new(1, 1, 1)
+		text.TextScaled = true
+		text.Text = Text
+		text.Visible = true
+		
+		local Control = Instance.new("Frame")
+		Control.Parent = text
+		Control.Name = Decrypt()
+		Control.BackgroundColor3 = Color3.new(0.129412, 0.129412, 0.129412)
+		Control.Position = UDim2.new(1.154, 0, 0.063, 0)
+		Control.Size = UDim2.new(0, 92, 0, 25)
+		Control.Visible = true
+		
+		local UICControl = Instance.new("UICorner")
+		UICControl.Parent = Control
+		UICControl.CornerRadius = UDim.new(8, 8)
+		
+		local UISControl = Instance.new("UIStroke")
+		UISControl.Parent = Control
+		UISControl.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+		UISControl.Color = Color3.new(1, 0, 0)
+		UISControl.Thickness = 1
+		
+		local Slider = Instance.new("TextButton")
+		Slider.Parent = Control
+		Slider.Name = Decrypt()
+		Slider.BackgroundColor3 = Color3.new(1, 1, 1)
+		Slider.Position = UDim2.new(0, 0, 0, 0)
+		Slider.Size = UDim2.new(0, 29, 0, 25)
+		Slider.Text = ""
+		Slider.Visible = true
+		
+		local UICSlider = Instance.new("UICorner")
+		UICSlider.Parent = Slider
+		UICSlider.CornerRadius = UDim.new(8, 8)
+		
+		local value = Instance.new("TextLabel")
+		value.Parent = Control
+		value.Name = Decrypt()
+		value.BackgroundTransparency = 1
+		value.Position = UDim2.new(1.076, 0, -0.04, 0)
+		value.Size = UDim2.new(0, 25, 0, 25)
+		value.TextColor3 = Color3.new(1, 1, 1)
+		value.TextScaled = true
+	end
+	
+	function Buttons:MakeSectionPressButton(Parent, Text)
+		local text = Instance.new("TextLabel")
+		text.Parent = Parent
+		text.Name = Decrypt()
+		text.BackgroundTransparency = 1
+		text.Size = UDim2.new(0, 97, 0, 22)
+		text.TextColor3 = Color3.new(1, 1, 1)
+		text.TextScaled = true
+		text.Text = Text
+		text.Visible = true
+		
+		local UICtext = Instance.new("UICorner")
+		UICtext.Parent = text
+		UICtext.CornerRadius = UDim.new(0, 5)
+		
+		local UIStext = Instance.new("UIStroke")
+		UIStext.Parent = text
+		UIStext.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+		UIStext.Color = Color3.new(1, 0, 0)
+		UIStext.Thickness = 1
+		
+		local button = Instance.new("ImageButton")
+		button.Parent = text
+		button.Name = Decrypt()
+		button.BackgroundTransparency = 1
+		button.Position = UDim2.new(1.134, 0, -0.035, 0)
+		button.Size = UDim2.new(0, 25, 0, 25)
+		button.Image = "rbxassetid://2769398451"
+		button.Visible = true
+	end
+	
+	function Buttons:MakeColorWheelSection(Parent)
+		local colorwheel = Instance.new("ImageButton")
+		colorwheel.Parent = Parent
+		colorwheel.Name = Decrypt()
+		colorwheel.BackgroundTransparency = 1
+		colorwheel.Position = UDim2.new(1.35, 0, -0.06, 0)
+		colorwheel.Size = UDim2.new(0, 30, 0, 30)
+		colorwheel.Image = "http://www.roblox.com/asset/?id=1003599877"
+		
+		return colorwheel
 	end
 
-	function Frames:MakeSlider(Parent, Name, index, startervalue, min, max, func)
+	function Frames:MakeSlider(Parent, index, startervalue, min, max, func)
 		local SliderText = Instance.new("TextLabel")
 		SliderText.Parent = Parent
-		SliderText.Name = Name
+		SliderText.Name = Decrypt()
 		SliderText.BackgroundTransparency = 1
 		SliderText.Size = UDim2.new(0, 138, 0, 28)
 		SliderText.TextScaled = true
@@ -703,7 +931,7 @@ function Library()
 
 		local SliderControl = Instance.new("Frame")
 		SliderControl.Parent = SliderText
-		SliderControl.Name = "Control"
+		SliderControl.Name = Decrypt()
 		SliderControl.BackgroundColor3 = Color3.new(0.129412, 0.129412, 0.129412)
 		SliderControl.Position = UDim2.new(1.203, 0, 0, 0)
 		SliderControl.Size = UDim2.new(0, 160, 0 ,28)
@@ -721,7 +949,7 @@ function Library()
 
 		local SliderButton = Instance.new("TextButton")
 		SliderButton.Parent = SliderControl
-		SliderButton.Name = "Slider"
+		SliderButton.Name = Decrypt()
 		SliderButton.BackgroundColor3 = Color3.new(0.870588, 0.870588, 0.870588)
 		SliderButton.Position = UDim2.new(0, 0, 0, 0)
 		SliderButton.Size = UDim2.new(math.clamp((startervalue - min)/(max - min), 0.1, 1), 0, 0, 28)
@@ -780,10 +1008,10 @@ function Library()
 		return SliderText
 	end
 
-	function Buttons:MakeClickButton(Parent, Name, Text, func)
+	function Buttons:MakeClickButton(Parent, Text, func)
 		local presstext = Instance.new("TextLabel")
 		presstext.Parent = Parent
-		presstext.Name = Name
+		presstext.Name = Decrypt()
 		presstext.BackgroundTransparency = 1
 		presstext.Size = UDim2.new(0, 138, 0, 28)
 		presstext.TextScaled = true
@@ -803,7 +1031,7 @@ function Library()
 
 		local pressbutton = Instance.new("ImageButton")
 		pressbutton.Parent = presstext
-		pressbutton.Name = "click"
+		pressbutton.Name = Decrypt()
 		pressbutton.BackgroundTransparency = 1
 		pressbutton.Position = UDim2.new(1.145, 0, -0.071, 0)
 		pressbutton.Size = UDim2.new(0, 32, 0, 32)
@@ -816,6 +1044,97 @@ function Library()
 
 		return pressbutton
 	end
+	
+	function Frames:MakeSelectTab(Parent, Text, options, method)
+		local button = Instance.new("TextButton")
+		button.Parent = Parent
+		button.Name = Decrypt()
+		button.BackgroundTransparency = 1
+		button.Size = UDim2.new(0, 179, 0, 24)
+		button.TextScaled = true
+		button.TextColor3 = Color3.new(1, 1, 1)
+		button.Text = Text
+		button.Visible = true
+		
+		local UICtext = Instance.new("UICorner")
+		UICtext.Parent = button
+		UICtext.CornerRadius = UDim.new(0, 3)
+		
+		local UIStext = Instance.new("UIStroke")
+		UIStext.Parent = button
+		UIStext.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+		UIStext.Color = Color3.new(1, 0, 0)
+		UIStext.Thickness = 1
+		
+		local Frame = Instance.new("Frame")
+		Frame.Parent = button
+		Frame.Name = Decrypt()
+		Frame.BackgroundColor3 = Color3.new(0.0431373, 0.0431373, 0.0431373)
+		Frame.Position = UDim2.new(0, 0, 1, 0)
+		Frame.Size = UDim2.new(0, 178, 0, 148)
+		Frame.ZIndex = 2
+		Frame.Visible = false
+		
+		local UISFrame = Instance.new("UIStroke")
+		UISFrame.Parent = Frame
+		UISFrame.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+		UISFrame.Color = Color3.new(1, 0, 0)
+		UISFrame.Thickness = 1
+		
+		local UILFrame = Instance.new("UIListLayout")
+		UILFrame.Parent = Frame
+		UILFrame.Padding = UDim.new(0, 10)
+		UILFrame.FillDirection = Enum.FillDirection.Vertical
+		UILFrame.SortOrder = Enum.SortOrder.LayoutOrder
+		UILFrame.HorizontalAlignment = Enum.HorizontalAlignment.Left
+		UILFrame.HorizontalFlex = Enum.UIFlexAlignment.None
+		UILFrame.VerticalAlignment = Enum.VerticalAlignment.Top
+		UILFrame.VerticalFlex = Enum.UIFlexAlignment.None
+		
+		local UIPFrame = Instance.new("UIPadding")
+		UIPFrame.Parent = Frame
+		UIPFrame.PaddingBottom = UDim.new(0, 0)
+		UIPFrame.PaddingLeft = UDim.new(0.07, 0)
+		UIPFrame.PaddingRight = UDim.new(0, 0)
+		UIPFrame.PaddingTop = UDim.new(0.05, 0)
+		
+		if options then
+			for i, a in pairs(options) do
+				local btn = Instance.new("TextButton")
+				btn.Name = Decrypt()
+				btn.Parent = Frame
+				btn.BackgroundTransparency = 1
+				btn.Size = UDim2.new(0, 152, 0, 24)
+				btn.TextScaled = true
+				btn.TextColor3 = Color3.new(1, 1, 1)
+				btn.Text = a
+				btn.ZIndex = 5
+				btn.Visible = true
+
+				local UISbutton = Instance.new("UIStroke")
+				UISbutton.Parent = btn
+				UISbutton.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+				UISbutton.Color = Color3.new(1, 0, 0)
+				UISbutton.Thickness = 1
+				
+				btn.MouseButton1Click:Connect(function()
+					Frame.Visible = false
+					Methods[method] = a
+					button.Text = a
+				end)
+			end
+		end
+		
+		UILFrame:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
+			Frame.Size = UDim2.new(0, 178, 0, UILFrame.AbsoluteContentSize.Y * 1.3)
+		end)
+		
+		button.MouseButton1Click:Connect(function()
+			Frame.Visible = not Frame.Visible
+		end)
+
+		return button
+	end
 
 	return {Tabs = Tabs, Buttons = Buttons, Frames = Frames}
 end
@@ -825,7 +1144,7 @@ local Tabs = Library.Tabs
 local Buttons = Library.Buttons
 local Frames = Library.Frames
 
-Frames:MakeNotif("Welcome! 👻 (TEST version)", "Join to our discord! \n discrod.gg/getghost", 10)
+Frames:MakeNotif("Welcome! 👻 ", "Join to our discord! \n discrod.gg/getghost", 10)
 
 function AnimateButtons(button, value)
 	local enabled = UDim2.new(0.53, 0, 0.071, 0)
@@ -853,33 +1172,37 @@ function AnimateButtons2(button, value)
 	end
 end
 
-local WorldTab = Tabs:MakeTab("World", "World")
-local PlayerTab = Tabs:MakeTab("Player", "Player")
-local MainTab = Tabs:MakeTab("Main", "Main")
-local VisualTab = Tabs:MakeTab("Visual", "Visual")
-local SkinsTab = Tabs:MakeTab("Skins", "Skins")
-local FarmTab = Tabs:MakeTab("Farm", "Farm")
-local EventsTab = Tabs:MakeTab("Events", "Events")
-local SettingsTab = Tabs:MakeTab("Settings", "Settings")
-local ConfigTab = Tabs:MakeTab("Config", "Config")
+local WorldTab = Tabs:MakeTab("World")
+local PlayerTab = Tabs:MakeTab("Player")
+local MainTab = Tabs:MakeTab("Main")
+local VisualTab = Tabs:MakeTab("Visual")
+local SkinsTab = Tabs:MakeTab("Skins")
+local FarmTab = Tabs:MakeTab("Farm")
+local EventsTab = Tabs:MakeTab("Events")
+local SettingsTab = Tabs:MakeTab("Settings")
+local ConfigTab = Tabs:MakeTab("Config")
 
 --// WORLD \\--
-local MakeWorldMenu = Tabs:MakeFrameMenu("World", true, WorldTab)
+local MakeWorldMenu = Tabs:MakeFrameMenu(true, WorldTab)
 local MakeWorldMenuUIList = Tabs:MakeUIList(MakeWorldMenu)
 local MakeWorldMenuUIPadding = Tabs:MakeUIPadding(MakeWorldMenu)
 
 --// PLAYER \\--
-local MakePlayerMenu = Tabs:MakeFrameMenu("Player", false, PlayerTab)
+local MakePlayerMenu = Tabs:MakeFrameMenu(false, PlayerTab)
 local MakePlayerMenuUIList = Tabs:MakeUIList(MakePlayerMenu)
 local MakePlayerMenuUIPadding = Tabs:MakeUIPadding(MakePlayerMenu)
 
 --// MAIN \\--
-local MakeMainMenu = Tabs:MakeScrollingMenu("Main", false, MainTab)
+local MakeMainMenu = Tabs:MakeScrollingMenu(false, MainTab)
 local _LeftBoxMainMenu = Tabs:MakeLeftBox(MakeMainMenu)
 local _RightBoxManMenu = Tabs:MakeRightBox(MakeMainMenu)
 
+local MakeVisualMenu = Tabs:MakeFrameMenu(false, VisualTab)
+local _LeftBoxVisual = Tabs:MakeLeftBox(MakeVisualMenu)
+local _RightBoxVisual = Tabs:MakeRightBox(MakeVisualMenu)
+
 --// WORLD \\--
-local Fullbright = Buttons:MakeDefaultButton(MakeWorldMenu, "Fullbright", "Fullbright", "Fullbright", false, function()
+local Fullbright = Buttons:MakeDefaultButton(MakeWorldMenu, "Fullbright", "Fullbright", false, function()
 	local Folder
 	if functions.Fullbright then
 		if #light:GetChildren() ~= 0 then
@@ -923,7 +1246,7 @@ local Fullbright = Buttons:MakeDefaultButton(MakeWorldMenu, "Fullbright", "Fullb
 	end)
 end)
 
-local AutoOpenDoors = Buttons:MakeDefaultButton(MakeWorldMenu, "OpenDoors", "Auto open doors", "AutoOpenDoors", false, function()
+local AutoOpenDoors = Buttons:MakeDefaultButton(MakeWorldMenu, "Auto open doors", "AutoOpenDoors", false, function()
 	if functions.AutoOpenDoors then
 		RUNS.AutoOpenDoors = run.RenderStepped:Connect(function()
 			local function GetDoor()
@@ -979,7 +1302,7 @@ local AutoOpenDoors = Buttons:MakeDefaultButton(MakeWorldMenu, "OpenDoors", "Aut
 	end
 end)
 
-local NoBarriers = Buttons:MakeDefaultButton(MakeWorldMenu, "nobarriers", "No barriers", "NoBarriers", false, function()
+local NoBarriers = Buttons:MakeDefaultButton(MakeWorldMenu, "No barriers", "NoBarriers", false, function()
 	for _, a in pairs(workspace.Filter.Parts["F_Parts"]:GetDescendants()) do
 		if a:IsA("Part") or a:IsA("MeshPart") then
 			a.CanTouch = not a.CanTouch
@@ -987,7 +1310,7 @@ local NoBarriers = Buttons:MakeDefaultButton(MakeWorldMenu, "nobarriers", "No ba
 	end
 end)
 
-local NoGrinder = Buttons:MakeDefaultButton(MakeWorldMenu, "nogrinder", "Anti grinder", "NoGrinder", false, function()
+local NoGrinder = Buttons:MakeDefaultButton(MakeWorldMenu, "Anti grinder", "NoGrinder", false, function()
 	for _, a in pairs(workspace.Map.Parts.Grinders:GetDescendants()) do
 		if a:IsA("Part") or a:IsA("MeshPart") then
 			a.CanTouch = not a.CanTouch
@@ -1000,7 +1323,7 @@ local NoGrinder = Buttons:MakeDefaultButton(MakeWorldMenu, "nogrinder", "Anti gr
 	end
 end)
 
-local FastPickup = Buttons:MakeDefaultButton(MakeWorldMenu, "fastpickup", "Fast pickup", "FastPickup", false, function()
+local FastPickup = Buttons:MakeDefaultButton(MakeWorldMenu, "Fast pickup", "FastPickup", false, function()
 	if functions.FastPickup then
 		game.DescendantAdded:Connect(function(obj)
 			if obj:IsA("ProximityPrompt") then
@@ -1015,7 +1338,7 @@ local FastPickup = Buttons:MakeDefaultButton(MakeWorldMenu, "fastpickup", "Fast 
 	end
 end)
 
-local AutoPickupScraps = Buttons:MakeDefaultButton(MakeWorldMenu, "autoscraps", "Auto pickup scraps", "AutoPickupScraps", false, function()
+local AutoPickupScraps = Buttons:MakeDefaultButton(MakeWorldMenu, "Auto pickup scraps", "AutoPickupScraps", false, function()
 	local remote = rp.Events.PIC_PU
 	local scrapsfolder = workspace.Filter.SpawnedPiles
 	local canPickup = true
@@ -1047,12 +1370,11 @@ local AutoPickupScraps = Buttons:MakeDefaultButton(MakeWorldMenu, "autoscraps", 
 				if canPickup then
 					remote:FireServer(string.reverse(getscrap:GetAttribute("jzu")))
 					canPickup = false
-				else
-					if tick() - startTick >= 4.5 and canPickup == false then
-						canPickup = true
-						startTick = tick()
-					end
 				end
+			end
+			if canPickup == false and tick() - startTick >= 4.5 then
+				canPickup = true
+				startTick = tick()
 			end
 		end)
 	else
@@ -1063,7 +1385,7 @@ local AutoPickupScraps = Buttons:MakeDefaultButton(MakeWorldMenu, "autoscraps", 
 	end
 end)
 
-local AutoPickupTools = Buttons:MakeDefaultButton(MakeWorldMenu, "auto-tools", "Auto pickup tools", "AutoPickupTools", false, function()
+local AutoPickupTools = Buttons:MakeDefaultButton(MakeWorldMenu, "Auto pickup tools", "AutoPickupTools", false, function()
 	local remote = game:GetService("ReplicatedStorage").Events.PIC_TLO
 	local toolsfolder = workspace.Filter.SpawnedTools
 	local canPickup = true
@@ -1100,13 +1422,12 @@ local AutoPickupTools = Buttons:MakeDefaultButton(MakeWorldMenu, "auto-tools", "
 					if canPickup then
 						remote:FireServer(Handle)
 						canPickup = false
-					else
-						if tick() - startTick >= 1.5 and canPickup == false then
-							canPickup = true
-							startTick = tick()
-						end
 					end
 				end
+			end
+			if canPickup == false and tick() - startTick >= 1.5 then
+				canPickup = true
+				startTick = tick()
 			end
 		end)
 	else
@@ -1117,54 +1438,10 @@ local AutoPickupTools = Buttons:MakeDefaultButton(MakeWorldMenu, "auto-tools", "
 	end
 end)
 
-local AutoPickupCrates = Buttons:MakeDefaultButton(MakeWorldMenu, "autocrates", "Auto pickup crates", "AutoPickupTools", false, function()
-	local remote = rp.Events.PIC_PU
-	local scrapsfolder = workspace.Filter.SpawnedPiles
-	local canPickup = true
-	local startTick = tick()
-
-	if functions.AutopickupCrates then
-		RUNS.AutopickupCrates = run.RenderStepped:Connect(function()
-			local function GetClosestScrap()
-				local maxdist = 15
-				local closest = nil
-
-				for _, a in pairs(scrapsfolder:GetChildren()) do
-					if a and (a.Name == "C1" or a.Name == "C2" or a.Name == "C3") then
-						if me.Character and me.Character.HumanoidRootPart then
-							local getdist = (me.Character.HumanoidRootPart.Position - a.MeshPart.Position).Magnitude
-							if getdist < maxdist then
-								maxdist = getdist
-								closest = a
-							end
-						end
-					end
-				end
-				maxdist = 15
-				return closest
-			end
-
-			local getscrap = GetClosestScrap()
-			if getscrap then
-				if canPickup then
-					remote:FireServer(string.reverse(getscrap:GetAttribute("jzu")))
-					canPickup = false
-				else
-					if tick() - startTick >= 7 and canPickup == false then
-						canPickup = true
-						startTick = tick()
-					end
-				end
-			end
-		end)
-	else
-		if RUNS.AutopickupCrates then
-			RUNS.AutopickupCrates:Disconnect()
-			RUNS.AutopickupCrates = nil
-		end
-	end
+local AutoPickupCrates = Buttons:MakeDefaultButton(MakeWorldMenu, "Auto pickup crates", "AutoPickupTools", false, function()
+	-- later
 end)
-local AutoPickupMoney = Buttons:MakeDefaultButton(MakeWorldMenu, "automoney", "Auto pickup money", "AutoPickupMoney", false, function()
+local AutoPickupMoney = Buttons:MakeDefaultButton(MakeWorldMenu, "Auto pickup money", "AutoPickupMoney", false, function()
 	local remote = rp.Events:FindFirstChild("CZDPZUS")
 	local moneyfolder = workspace.Filter.SpawnedBread
 	local canPickup = true
@@ -1195,12 +1472,11 @@ local AutoPickupMoney = Buttons:MakeDefaultButton(MakeWorldMenu, "automoney", "A
 				if canPickup then
 					remote:FireServer(foundmoney)
 					canPickup = false
-				else
-					if tick() - startTick >= 0.7 and canPickup == false then
-						canPickup = true
-						startTick = tick()
-					end
 				end
+			end
+			if canPickup == false and tick() - startTick >= 1 then
+				canPickup = true
+				startTick = tick()
 			end
 		end)
 	else
@@ -1212,7 +1488,7 @@ local AutoPickupMoney = Buttons:MakeDefaultButton(MakeWorldMenu, "automoney", "A
 end)
 
 --// PLAYER \\--
-local MakeFovSlider = Frames:MakeSlider(MakePlayerMenu, "fov", "FOV", camera.FieldOfView, 70, 120, function(val)
+local MakeFovSlider = Frames:MakeSlider(MakePlayerMenu, "FOV", camera.FieldOfView, 70, 120, function(val)
 	if RUNS.cameraFOV ~= nil then
 		RUNS.cameraFOV:Disconnect()
 		RUNS.cameraFOV = nil
@@ -1221,11 +1497,11 @@ local MakeFovSlider = Frames:MakeSlider(MakePlayerMenu, "fov", "FOV", camera.Fie
 		camera.FieldOfView = val
 	end)
 end)
-local MakeCameraDistanceSlider = Frames:MakeSlider(MakePlayerMenu, "camdist", "Camera distance", me.CameraMaxZoomDistance, 10, 500, function(val)
+local MakeCameraDistanceSlider = Frames:MakeSlider(MakePlayerMenu, "Camera distance", me.CameraMaxZoomDistance, 10, 500, function(val)
 	me.CameraMaxZoomDistance = val
 end)
---local MakeSpeedSlider = Frames:MakeSlider(MakePlayerMenu, "speed", "Speed")
-local MakeJumppowerSlider = Frames:MakeSlider(MakePlayerMenu, "jumppower", "Jump", 7.1, 7.1, 25, function(val)
+--local MakeSpeedSlider = Frames:MakeSlider(MakePlayerMenu, "Speed")
+local MakeJumppowerSlider = Frames:MakeSlider(MakePlayerMenu, "Jump", 7.1, 7.1, 25, function(val)
 	if RUNS.JumpHeight then
 		RUNS.JumpHeight:Disconnect()
 		RUNS.JumpHeight = nil
@@ -1237,10 +1513,10 @@ local MakeJumppowerSlider = Frames:MakeSlider(MakePlayerMenu, "jumppower", "Jump
 		end
 	end)
 end)
-local MakeGravitySlider = Frames:MakeSlider(MakePlayerMenu, "gravity", "Gravity", workspace.Gravity, workspace.Gravity, 75, function(val)
+local MakeGravitySlider = Frames:MakeSlider(MakePlayerMenu, "Gravity", workspace.Gravity, workspace.Gravity, 75, function(val)
 	workspace.Gravity = val
 end)
-local MakeFlyButton = Buttons:MakeDefaultButton(MakePlayerMenu, "fly", "Fly", "Fly", "Fly", function()
+local MakeFlyButton = Buttons:MakeDefaultButton(MakePlayerMenu, "Fly", "Fly", "Fly", function()
 	local event = game:GetService("ReplicatedStorage"):FindFirstChild("Events"):FindFirstChild("__RZDONL")
 	local flyspeed = 60
 
@@ -1263,7 +1539,12 @@ local MakeFlyButton = Buttons:MakeDefaultButton(MakePlayerMenu, "fly", "Fly", "F
 				end
 
 				hrp.Velocity = moveVector
-				event:FireServer("__---r", Vector3.new(0, 0, 0), hrp.CFrame, false)
+				if Methods.Fly == "Bypass" then
+					event:FireServer("__---r", Vector3.new(0, 0, 0), hrp.CFrame, false)
+					flyspeed = 60
+				elseif Methods.Fly == "Velocity" then
+					flyspeed = 40
+				end
 			end)
 		else
 			if RUNS.Fly then RUNS.Fly:Disconnect(); RUNS.Fly = nil end
@@ -1281,62 +1562,61 @@ local MakeFlyButton = Buttons:MakeDefaultButton(MakePlayerMenu, "fly", "Fly", "F
 		end)
 	end
 end)
-local MakeInfstaminaButton = Buttons:MakeDefaultButton(MakePlayerMenu, "infstamina", "Inf stamina", "Infstamina", false, function()
-	if functions.Infstamina == true then
-		local oldStamina
-		local succes, no = pcall(function()
-			oldStamina =
-				hookfunction(
-					getupvalue(getrenv()._G.S_Take, 2),
-					function(v1, ...)
-						if (functions.Infstamina) then 
-							v1 = 0
+local MakeFlyMethodSelector = Frames:MakeSelectTab(MakePlayerMenu, tostring(Methods.Fly), {"Bypass", "Velocity"}, "Fly")
+local MakeInfstaminaButton = Buttons:MakeDefaultButton(MakePlayerMenu, "Inf stamina", "Infstamina", false, function()
+	if functions.Infstamina then
+		while functions.Infstamina do
+			if Methods.Infstamina == "Getgc" then
+				local stamina = {}
+				function get()
+					for index, value in pairs(getgc(true)) do
+						if type(value) == "table" and rawget(value, "S") then
+							stamina[#stamina + 1] = value
 						end
-						return oldStamina(v1, ...)
-					end
-				)
-		end)
-		if not succes then
-			local stamina = {}
-			function get()
-				for index, value in pairs(getgc(true)) do
-					if type(value) == "table" and rawget(value, "S") then
-						stamina[#stamina + 1] = value
 					end
 				end
-			end
-			local ss, nn = pcall(function()
-				get()
-			end)
-			if ss then
-				RUNS.Infstamina = run.RenderStepped:Connect(function()
+				local ss, nn = pcall(function()
 					get()
-					if functions.Infstamina then
-						for _, a in pairs(stamina) do
-							a.S = 100
-						end
-					end
 				end)
-			else
-				RUNS.Infstamina = run.RenderStepped:Connect(function()
-					if functions.infstaminaF then
-						local char = me.Character
-						if not char then return end
-						local hum = char:FindFirstChildOfClass("Humanoid")
-						if not hum then return end
-						local check = hum:GetAttribute("ZSPRN_M")
-						if not check then
-							local makeattribute = hum:SetAttribute("ZSPRN_M", true)
+				if ss then
+					for _, a in pairs(stamina) do
+						a.S = 100
+					end
+				end
+			elseif Methods.Infstamina == "low exploit" then
+				if me.Character then
+					local hum = me.Character:FindFirstChild("Humanoid")
+					if hum and not hum:GetAttribute("ZSPRN_M") then
+						hum:SetAttribute("ZSPRN_M", true)
+					end
+				end
+				me.CharacterAdded:Connect(function(char)
+					if functions.Infstamina then
+						if char and char:WaitForChild("Humanoid") then
+							local hum = char:FindFirstChild("Humanoid")
+							if hum and not hum:GetAttribute("ZSPRN_M") then
+								hum:SetAttribute("ZSPRN_M", true)
+							end
 						end
 					end
 				end)
 			end
+			run.RenderStepped:Wait()
 		end
 	else
-		if RUNS.Infstamina then RUNS.Infstamina:Disconnect() end; RUNS.Infstamina = nil if me.Character then me.Character:FindFirstChildOfClass("Humanoid"):SetAttribute("ZSPRN_M", nil) end
+		if me.Character then
+			local hum = me.Character:FindFirstChild("Humanoid")
+			if hum then
+				local check = hum:GetAttribute("ZSPRN_M")
+				if check then
+					hum:SetAttribute("ZSPRN_M", nil)
+				end
+			end
+		end
 	end
 end)
-local MakeNofalldamegButton = Buttons:MakeDefaultButton(MakePlayerMenu, "nofalldamage", "No fall damage", "Nofalldamage", false, function()
+local MakeInfstaminaMethodSelector = Frames:MakeSelectTab(MakePlayerMenu, Methods.Infstamina, {"Getgc", "low exploit"}, "Infstamina")
+local MakeNofalldamegButton = Buttons:MakeDefaultButton(MakePlayerMenu, "No fall damage", "Nofalldamage", false, function()
 	if functions.Nofalldamage then
 		if me.Character then
 			local ff = Instance.new("ForceField")
@@ -1360,7 +1640,7 @@ local MakeNofalldamegButton = Buttons:MakeDefaultButton(MakePlayerMenu, "nofalld
 		end
 	end
 end)
-local MakeNoclipButton = Buttons:MakeDefaultButton(MakePlayerMenu, "noclip", "Noclip", "Noclip", "Noclip", function()
+local MakeNoclipButton = Buttons:MakeDefaultButton(MakePlayerMenu, "Noclip", "Noclip", "Noclip", function()
 	if functions.Noclip then
 		local function LoopNoclip()
 			local char = me.Character
@@ -1381,7 +1661,7 @@ local MakeNoclipButton = Buttons:MakeDefaultButton(MakePlayerMenu, "noclip", "No
 		end
 	end
 end)
-local MakeFakeDownButton = Buttons:MakeDefaultButton(MakePlayerMenu, "fakedown", "Fake down", "FakeDown", "FakeDown", function()
+local MakeFakeDownButton = Buttons:MakeDefaultButton(MakePlayerMenu, "Fake down", "FakeDown", "FakeDown", function()
 	if functions.FakeDown then
 		local getvalue = CharStats(me).Downed
 		getvalue.Value = true
@@ -1394,7 +1674,7 @@ local MakeFakeDownButton = Buttons:MakeDefaultButton(MakePlayerMenu, "fakedown",
 		CharStats(me).Downed.Value = false
 	end
 end)
-local MakeStopneckmove = Buttons:MakeDefaultButton(MakePlayerMenu, "neckmove", "Stop neck move", "Stopneckmove", false, function()
+local MakeStopneckmove = Buttons:MakeDefaultButton(MakePlayerMenu, "Stop neck move", "Stopneckmove", false, function()
 	if functions.Stopneckmove then
 		if me.Character then
 			me.Character:SetAttribute("NoNeckMovement", true)
@@ -1420,7 +1700,7 @@ local MakeStopneckmove = Buttons:MakeDefaultButton(MakePlayerMenu, "neckmove", "
 		end
 	end
 end)
-local MakeUnbreaklimbs = Buttons:MakeDefaultButton(MakePlayerMenu, "unbreaklimbs", "Unbreak limbs", "Unbreaklimbs", false, function()
+local MakeUnbreaklimbs = Buttons:MakeDefaultButton(MakePlayerMenu, "Unbreak limbs", "Unbreaklimbs", false, function()
 	local limbsfolder = CharStats(me).HealthValues
 	for _, a in pairs(limbsfolder:GetChildren()) do
 		for _, i in pairs(a:GetChildren()) do
@@ -1456,7 +1736,7 @@ end)
 
 --// MAIN \\--
 local MakeSilentaimSection = Frames:MakeSection(_LeftBoxMainMenu)
-local SilentAim = Buttons:MakeSectionDefaultButton(MakeSilentaimSection, "silentaim", "Silent aim", "SilentAim", false, function()
+local SilentAim = Buttons:MakeSectionDefaultButton(MakeSilentaimSection, "Silent aim", "SilentAim", false, function()
 	if functions.SilentAim then
 		local radius = 90
 		local target = nil
@@ -1494,6 +1774,7 @@ local SilentAim = Buttons:MakeSectionDefaultButton(MakeSilentaimSection, "silent
 		local DamageEvent = game:GetService("ReplicatedStorage").Events["ZFKLF__H"]
 
 		VisualizeEvent.Event:Connect(function(_, ShotCode, _, Gun, _, StartPos, BulletsPerShot)
+			if not functions.SilentAim then return end
 			if not Gun or not target or not target.Character then return end
 			if not me.Character or not me.Character:FindFirstChildOfClass("Tool") then return end
 
@@ -1529,8 +1810,114 @@ local SilentAim = Buttons:MakeSectionDefaultButton(MakeSilentaimSection, "silent
 		end
 	end
 end)
+local MakeSilentAimDrawCircle = Buttons:MakeSectionCheckboxButton(MakeSilentaimSection, "Draw circle", "SilentAim", "Draw")
+local MakeSilentAimDrawSizeSlider = Frames:MakeSectionSlider(MakeSilentaimSection, "Size")
+local MakeSilentColorWheelCircle = Buttons:MakeColorWheelSection(MakeSilentAimDrawCircle)
+local MakeSilentAimTargetPart = Buttons:MakeSectionPressButton(MakeSilentaimSection, "Target part")
+local MakeSilentAimCheckwall = Buttons:MakeSectionCheckboxButton(MakeSilentaimSection, "Check wall", "SilentAim", "CheckWall")
+--local MakeSilentAimCheckteam = Buttons:MakeSectionCheckboxButton(MakeSilentAimSection, "")
 
-local MakeInstantReloadButton = Buttons:MakeDefaultButton(_LeftBoxMainMenu, "instant reload", "Instant reload", "Instantreload", false, function()
+local MakeAimbotSection = Frames:MakeSection(_RightBoxManMenu)
+local Aimbot = Buttons:MakeSectionDefaultButton(MakeAimbotSection, "Aim bot")
+local MakeAimbotDrawCircle = Buttons:MakeSectionCheckboxButton(MakeAimbotSection, "Draw circle", "Aimbot", "Draw")
+local MakeAimbotDrawSizeSlider = Frames:MakeSectionSlider(MakeAimbotSection, "Size")
+local MakeAimbotTargetPart = Buttons:MakeSectionPressButton(MakeAimbotSection, "Target part")
+
+local MakeMeleeauraSection = Frames:MakeSection(_LeftBoxMainMenu)
+local Meleeaura = Buttons:MakeSectionDefaultButton(MakeMeleeauraSection, "Melee aura", "Meleeaura", "Meleeaura", function()
+	local maxdist = 15
+	local remote1 = game:GetService("ReplicatedStorage").Events["XMHH.2"]
+	local remote2 = game:GetService("ReplicatedStorage").Events["XMHH2.2"]
+
+	function Attack(target)
+		if not (target and target:FindFirstChild("Head")) then return end
+
+		local mychar = me.Character
+		if not mychar then return end
+		local TOOL = mychar:FindFirstChildOfClass("Tool")
+		if not TOOL then return end
+
+		local result = remote1:InvokeServer("🍞", tick(), TOOL, "43TRFWX", "Normal", tick(), true)
+
+		task.wait(0.3 + math.random() * 0.2)
+
+		if TOOL then
+
+			local Handle = TOOL:FindFirstChild("WeaponHandle") or TOOL:FindFirstChild("Handle") or me.Character:FindFirstChild("Right Arm")
+			local arg2 = {
+				[1] = "🍞",
+				[2] = tick(),
+				[3] = TOOL,
+				[4] = "2389ZFX34",
+				[5] = result,
+				[6] = true,
+				[7] = Handle,
+				[8] = target:FindFirstChild("Head"),
+				[9] = target,
+				[10] = me.Character:FindFirstChild("HumanoidRootPart").Position,
+				[11] = target:FindFirstChild("Head").Position
+			}
+			if TOOL.Name == "Chainsaw" then
+				for i = 1, 15 do
+					remote2:FireServer(unpack(arg2)) 
+				end
+			else
+				remote2:FireServer(unpack(arg2))
+			end
+		else
+			return
+		end
+	end
+
+	if functions.Meleeaura then
+		RUNS.Meleeaura = run.RenderStepped:Connect(function()
+			local mychar = me.Character or me.CharacterAdded:Wait()
+			if mychar then
+				local myhrp = mychar:FindFirstChild("HumanoidRootPart")
+				if myhrp then
+					for _, a in ipairs(plrs:GetPlayers()) do
+						if a ~= me then
+							local char = a.Character
+							if char then
+								local hrp = char:FindFirstChild("HumanoidRootPart")
+								if hrp then
+									local distance = (myhrp.Position - hrp.Position).Magnitude
+									if distance < maxdist and a.Character:FindFirstChildOfClass("Humanoid").Health > 15 and not char:FindFirstChildOfClass("ForceField") then
+										maxdist = distance
+										Attack(char)
+									end
+								end
+							end
+						end
+						maxdist = 15
+					end
+				end
+			end
+		end)
+	else
+		if RUNS.Meleeaura then
+			RUNS.Meleeaura:Disconnect()
+			RUNS.Meleeaura = nil
+		end
+	end
+end)
+
+local MakeRagebotSection = Frames:MakeSection(_RightBoxManMenu)
+local RageBot = Buttons:MakeSectionDefaultButton(MakeRagebotSection, "Rage bot", "RageBot", "RageBot", function()
+	-- later
+end)
+
+local MakeTrigerbotSection = Frames:MakeSection(_LeftBoxMainMenu)
+local TrigerBot = Buttons:MakeSectionDefaultButton(MakeTrigerbotSection, "Triger bot", "TrigerBot", false, function()
+	-- later
+end)
+
+local MakeRocketControlSection = Frames:MakeSection(_RightBoxManMenu)
+local RocketControl = Buttons:MakeSectionDefaultButton(MakeRocketControlSection, "Rocket control", "RocketControl", false, function()
+	
+end)
+
+local MakeInstantReloadButton = Buttons:MakeDefaultButton(_LeftBoxMainMenu, "Instant reload", "Instantreload", false, function()
 	local gunR_remote = game:GetService("ReplicatedStorage").Events.GNX_R
 	if functions.Instantreload then
 		local charme = me.Character
@@ -1605,93 +1992,18 @@ local MakeInstantReloadButton = Buttons:MakeDefaultButton(_LeftBoxMainMenu, "ins
 	end
 end)
 
-local MakeAimbotSection = Frames:MakeSection(_RightBoxManMenu)
-local MakeMeleeauraButton = Buttons:MakeSectionDefaultButton(MakeAimbotSection, "meleeaura", "Melee aura", "Meleeaura", false, function()
-	local maxdist = 15
-	local remote1 = game:GetService("ReplicatedStorage").Events["XMHH.2"]
-	local remote2 = game:GetService("ReplicatedStorage").Events["XMHH2.2"]
-
-	function Attack(target)
-		if not (target and target:FindFirstChild("Head")) then return end
-
-		local mychar = me.Character
-		if not mychar then return end
-		local TOOL = mychar:FindFirstChildOfClass("Tool")
-		if not TOOL then return end
-
-		local result = remote1:InvokeServer("🍞", tick(), TOOL, "43TRFWX", "Normal", tick(), true)
-
-		task.wait(0.3 + math.random() * 0.2)
-
-		if TOOL then
-
-			local Handle = TOOL:FindFirstChild("WeaponHandle") or TOOL:FindFirstChild("Handle") or me.Character:FindFirstChild("Right Arm")
-			local arg2 = {
-				[1] = "🍞",
-				[2] = tick(),
-				[3] = TOOL,
-				[4] = "2389ZFX34",
-				[5] = result,
-				[6] = true,
-				[7] = Handle,
-				[8] = target:FindFirstChild("Head"),
-				[9] = target,
-				[10] = me.Character:FindFirstChild("HumanoidRootPart").Position,
-				[11] = target:FindFirstChild("Head").Position
-			}
-			if TOOL.Name == "Chainsaw" then
-				for i = 1, 15 do
-					remote2:FireServer(unpack(arg2)) 
-				end
-			else
-				remote2:FireServer(unpack(arg2))
-			end
-		else
-			return
-		end
-	end
-
-	if functions.Meleeaura then
-		RUNS.Meleeaura = run.RenderStepped:Connect(function()
-			local mychar = me.Character or me.CharacterAdded:Wait()
-			if mychar then
-				local myhrp = mychar:FindFirstChild("HumanoidRootPart")
-				if myhrp then
-					for _, a in ipairs(plrs:GetPlayers()) do
-						if a ~= me then
-							local char = a.Character
-							if char then
-								local hrp = char:FindFirstChild("HumanoidRootPart")
-								if hrp then
-									local distance = (myhrp.Position - hrp.Position).Magnitude
-									if distance < maxdist and a.Character:FindFirstChildOfClass("Humanoid").Health > 15 and not char:FindFirstChildOfClass("ForceField") then
-										maxdist = distance
-										Attack(char)
-									end
-								end
-							end
-						end
-					end
-					maxdist = 15
-				end
-			end
-		end)
-	else
-		if RUNS.Meleeaura then
-			RUNS.Meleeaura:Disconnect()
-			RUNS.Meleeaura = nil
-		end
-	end
+--// VISUAL \\--
+local MakeEspSection = Frames:MakeSection(_LeftBoxVisual)
+local Esp = Buttons:MakeSectionDefaultButton(MakeEspSection, "ESP", "ESP", false, function()
+	-- later
 end)
---[[local Aimbot = Buttons:MakeSectionDefaultButton(MakeAimbotSection, "aimbot", "Aim bot")
 
-local MakeMeleeauraSection = Frames:MakeSection(_LeftBoxMainMenu)
-
-local MakeRagebotSection = Frames:MakeSection(_RightBoxManMenu)
-
-local MakeTrigerbotSection = Frames:MakeSection(_LeftBoxMainMenu)
-
-local MakeRocketcontrol = Frames:MakeSection(_RightBoxManMenu)]]
+local MakeArmsChams = Buttons:MakeDefaultButton(_RightBoxVisual, "Arms chams", "ArmsChams", false, function()
+	-- later
+end)
+local MakeToolsChams = Buttons:MakeDefaultButton(_RightBoxVisual, "Tools chams", "ToolsChams", false, function()
+	-- later
+end)
 
 dragging = false
 dragInput = nil
