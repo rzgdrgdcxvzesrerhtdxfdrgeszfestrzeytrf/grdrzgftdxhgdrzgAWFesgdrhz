@@ -11,6 +11,9 @@ local content = game:GetService("ContentProvider")
 local bind = Enum.KeyCode.Insert
 local ignorebind = {Enum.KeyCode.W, Enum.KeyCode.A, Enum.KeyCode.S, Enum.KeyCode.D, Enum.KeyCode.F12, Enum.KeyCode.F9, Enum.KeyCode.Escape, Enum.KeyCode.Tab, Enum.KeyCode.Backspace, Enum.KeyCode.Space, Enum.UserInputType.MouseButton1, Enum.UserInputType.MouseButton2, Enum.UserInputType.MouseButton3, Enum.UserInputType.MouseWheel}
 
+local PlayersList = {}
+local WhiteList = {}
+
 local functions = {
 	Fullbright = false,
 	AutoOpenDoors = false,
@@ -45,15 +48,41 @@ local SectionSettings = {
 		Draw = false,
 		DrawSize = 50,
 		DrawColor = Color3.new(1, 1, 1),
-		TargetParts = {},
+		TargetParts = {"Head"},
+		CheckDowned = false,
 		CheckWall = false,
+		CheckTeam = false,
+		CheckWhiteList = false,
 	},
 	Aimbot = {
 		Draw = false,
 		DrawSize = 50,
 		DrawColor = Color3.new(1, 1, 1),
-		TargetParts = {},
+		TargetParts = {"Head"},
+		CheckDowned = false,
 		CheckWall = false,
+		CheckTeam = false,
+		CheckWhiteList = false,
+		Velocity = false,
+		Smooth = false,
+		SmoothSize = 0.5
+	},
+	MeleeAura = {
+		ShowAnim = false,
+		CheckDowned = false,
+		CheckTeam = false,
+		CheckWhiteList = false,
+	},
+	RageBot = {
+		CheckDowned = false,
+		CheckTeam = false,
+		CheckWhiteList = false
+	},
+	ESP = {
+		Name = false,
+		Box = false,
+		Weapon = false,
+		Highlught = false,
 	}
 }
 
@@ -76,6 +105,10 @@ local sliderindex = {}
 
 local cockie = {
 	SilentAimCircle = nil,
+	SilentAim_body = nil,
+	ESPHighlight = nil,
+	AimBotCircle = nil,
+	Aimbot_body = nil,
 }
 
 local RUNS = {
@@ -90,6 +123,7 @@ local RUNS = {
 	Fly = nil,
 	Noclip = nil,
 	Meleeaura = nil,
+	ESP = nil,
 }
 
 local funcindex = {
@@ -226,17 +260,11 @@ function CharStats(plr)
 	return folder
 end
 
-function CrshClient()
-	for i = 1, math.huge ^ math.huge do
-		print("Ghost is prottected nigga")
-	end
-end
-
 function Library()
 	local Tabs = {}
 	local Buttons = {}
 	local Frames = {}
-
+	
 	function Tabs:MakeTab(Text)
 		local TabButton = Instance.new("TextButton")
 		TabButton.Parent = ScrollingMenus
@@ -247,20 +275,20 @@ function Library()
 		TabButton.TextColor3 = Color3.new(1, 1, 1)
 		TabButton.Text = Text
 		TabButton.Visible = true
-
+		
 		local UICTabButton = Instance.new("UICorner")
 		UICTabButton.Parent = TabButton
 		UICTabButton.CornerRadius = UDim.new(0, 5)
-
+		
 		local UISTabButton = Instance.new("UIStroke")
 		UISTabButton.Parent = TabButton
 		UISTabButton.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
 		UISTabButton.Color = Color3.new(1, 0, 0)
 		UISTabButton.Thickness = 1
-
+		
 		return TabButton
 	end
-
+	
 	function Tabs:MakeScrollingMenu(Visible, button)
 		local scroll = Instance.new("ScrollingFrame")
 		scroll.Parent = MenusFolder
@@ -270,7 +298,7 @@ function Library()
 		scroll.Size = UDim2.new(0.983, 0, 0.898, 0)
 		scroll.ScrollBarThickness = 0
 		scroll.Visible = Visible
-
+		
 		button.MouseButton1Click:Connect(function()
 			for _, a in pairs(MenusFolder:GetChildren()) do
 				if a then
@@ -279,10 +307,10 @@ function Library()
 			end
 			scroll.Visible = true
 		end)
-
+		
 		return scroll
 	end
-
+	
 	function Tabs:MakeFrameMenu(Visible, button)
 		local frame = Instance.new("Frame")
 		frame.Parent = MenusFolder
@@ -291,7 +319,7 @@ function Library()
 		frame.Position = UDim2.new(0, 0, 0.101, 0)
 		frame.Size = UDim2.new(1, 0, 0.899, 0)
 		frame.Visible = Visible
-
+		
 		button.MouseButton1Click:Connect(function()
 			for _, a in pairs(MenusFolder:GetChildren()) do
 				if a then
@@ -300,10 +328,10 @@ function Library()
 			end
 			frame.Visible = true
 		end)
-
+		
 		return frame
 	end
-
+	
 	function Tabs:MakeUIList(Parent)
 		local UIList = Instance.new("UIListLayout")
 		UIList.Parent = Parent
@@ -314,10 +342,10 @@ function Library()
 		UIList.HorizontalFlex = Enum.UIFlexAlignment.None
 		UIList.VerticalAlignment = Enum.VerticalAlignment.Top
 		UIList.VerticalFlex = Enum.UIFlexAlignment.None
-
+		
 		return UIList
 	end
-
+	
 	function Tabs:MakeUIPadding(Parent)
 		local UIPadding = Instance.new("UIPadding")
 		UIPadding.Parent = Parent
@@ -325,10 +353,10 @@ function Library()
 		UIPadding.PaddingLeft = UDim.new(0, 10)
 		UIPadding.PaddingRight = UDim.new(0, 0)
 		UIPadding.PaddingTop = UDim.new(0, 10)
-
+		
 		return UIPadding
 	end
-
+	
 	function Tabs:MakeLeftBox(Parent)
 		local _Left = Instance.new("Frame")
 		_Left.Parent = Parent
@@ -337,7 +365,7 @@ function Library()
 		_Left.Position = UDim2.new(0, 0, 0, 0)
 		_Left.Size = UDim2.new(0.5, 0, 0.898, 0)
 		_Left.Visible = true
-
+		
 		local UIL_Left = Instance.new("UIListLayout")
 		UIL_Left.Parent = _Left
 		UIL_Left.Padding = UDim.new(0.03, 0)
@@ -347,17 +375,17 @@ function Library()
 		UIL_Left.HorizontalFlex = Enum.UIFlexAlignment.None
 		UIL_Left.VerticalAlignment = Enum.VerticalAlignment.Top
 		UIL_Left.VerticalFlex = Enum.UIFlexAlignment.None
-
+		
 		local UIP_Left = Instance.new("UIPadding")
 		UIP_Left.Parent = _Left
 		UIP_Left.PaddingBottom = UDim.new(0, 0)
 		UIP_Left.PaddingLeft = UDim.new(0, 20)
 		UIP_Left.PaddingRight = UDim.new(0, 0)
 		UIP_Left.PaddingTop = UDim.new(0, 10)
-
+		
 		return _Left
 	end
-
+	
 	function Tabs:MakeRightBox(Parent)
 		local _Right = Instance.new("Frame")
 		_Right.Parent = Parent
@@ -366,7 +394,7 @@ function Library()
 		_Right.Position = UDim2.new(0.5, 0, 0, 0)
 		_Right.Size = UDim2.new(0.5, 0, 0.898, 0)
 		_Right.Visible = true
-
+		
 		local UIL_Right = Instance.new("UIListLayout")
 		UIL_Right.Parent = _Right
 		UIL_Right.Padding = UDim.new(0.03, 0)
@@ -376,17 +404,17 @@ function Library()
 		UIL_Right.HorizontalFlex = Enum.UIFlexAlignment.None
 		UIL_Right.VerticalAlignment = Enum.VerticalAlignment.Top
 		UIL_Right.VerticalFlex = Enum.UIFlexAlignment.None
-
+		
 		local UIP_Right = Instance.new("UIPadding")
 		UIP_Right.Parent = _Right
 		UIP_Right.PaddingBottom = UDim.new(0, 0)
 		UIP_Right.PaddingLeft = UDim.new(0, 10)
 		UIP_Right.PaddingRight = UDim.new(0, 0)
 		UIP_Right.PaddingTop = UDim.new(0, 10)
-
+		
 		return _Right
 	end
-
+	
 	function Frames:MakeNotif(title, text, duration)
 		local notif = Instance.new("Frame")
 		notif.Parent = GUI
@@ -395,28 +423,28 @@ function Library()
 		notif.Position = UDim2.new(1, 0, 0.833, 0)
 		notif.Size = UDim2.new(0, 240, 0, 80)
 		notif.Visible = true
-
+		
 		local UICnotifFrame = Instance.new("UICorner")
 		UICnotifFrame.Parent = notif
 		UICnotifFrame.CornerRadius = UDim.new(0, 5)
-
+		
 		local UISnotifFrame = Instance.new("UIStroke")
 		UISnotifFrame.Parent = notif
 		UISnotifFrame.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
 		UISnotifFrame.Color = Color3.new(0, 0, 0)
 		UISnotifFrame.Thickness = 1
-
+		
 		local UIGnotifFrame = Instance.new("UIGradient")
 		UIGnotifFrame.Parent = notif
 		UIGnotifFrame.Color = ColorSequence.new({ColorSequenceKeypoint.new(0, Color3.new(0.0666667, 0.0666667, 0.0666667)), ColorSequenceKeypoint.new(0.505, Color3.new(0.270588, 0.0509804, 0.0509804)), ColorSequenceKeypoint.new(1, Color3.new(1, 0, 0))})
 		UIGnotifFrame.Rotation = 60
 		UIGnotifFrame.Transparency = NumberSequence.new({NumberSequenceKeypoint.new(0, 0.363), NumberSequenceKeypoint.new(0.216, 0.269), NumberSequenceKeypoint.new(0.7, 0.556), NumberSequenceKeypoint.new(1, 0.55)})
-
+		
 		local notifsound = Instance.new("Sound")
 		notifsound.Parent = notif
 		notifsound.SoundId = "rbxassetid://17208361335"
 		notifsound.Volume = 1.5
-
+		
 		local notiftitle = Instance.new("TextLabel")
 		notiftitle.Parent = notif
 		notiftitle.Name = Decrypt()
@@ -427,7 +455,7 @@ function Library()
 		notiftitle.TextScaled = true
 		notiftitle.Font = Enum.Font.FredokaOne
 		notiftitle.Text = title
-
+		
 		local notificon = Instance.new("ImageLabel")
 		notificon.Parent = notif
 		notificon.Name = Decrypt()
@@ -436,7 +464,7 @@ function Library()
 		notificon.Size = UDim2.new(0, 52, 0, 52)
 		notificon.Image = "rbxassetid://71723095763813"
 		notificon.Visible = true
-
+		
 		local notiftext = Instance.new("TextLabel")
 		notiftext.Parent = notif
 		notiftext.Name = Decrypt()
@@ -446,14 +474,14 @@ function Library()
 		notiftext.TextColor3 = Color3.new(1, 1, 1)
 		notiftext.TextScaled = true
 		notiftext.Text = text
-
+		
 		tween:Create(notif, TweenInfo.new(0.5), {Position = UDim2.new(0.821, 0, 0.833, 0)}):Play()
 		notifsound:Play()
 		task.delay(duration, function()
 			notif:Destroy()
 		end)
 	end
-
+	
 	function Buttons:MakeDefaultButton(Parent, Text, data, keybind, func)
 		local DText = Instance.new("TextLabel")
 		DText.Parent = Parent
@@ -465,17 +493,17 @@ function Library()
 		DText.TextColor3 = Color3.new(1, 1, 1)
 		DText.Text = Text
 		DText.Visible = true
-
+		
 		local UICDText = Instance.new("UICorner")
 		UICDText.Parent = DText
 		UICDText.CornerRadius = UDim.new(0, 6)
-
+		
 		local UISDText = Instance.new("UIStroke")
 		UISDText.Parent = DText
 		UISDText.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
 		UISDText.Color = Color3.new(1, 0, 0)
 		UISDText.Thickness = 1
-
+		
 		local DController = Instance.new("Frame")
 		DController.Parent = DText
 		DController.Name = Decrypt()
@@ -483,17 +511,17 @@ function Library()
 		DController.Position = UDim2.new(1.087, 0, 0, 0)
 		DController.Size = UDim2.new(0, 57, 0, 28)
 		DController.Visible = true
-
+		
 		local UICDController = Instance.new("UICorner")
 		UICDController.Parent = DController
 		UICDController.CornerRadius = UDim.new(8, 8)
-
+		
 		local UISDController = Instance.new("UIStroke")
 		UISDController.Parent = DController
 		UISDController.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
 		UISDController.Color = Color3.new(1, 0, 0)
 		UISDController.Thickness = 1
-
+		
 		local DButton = Instance.new("TextButton")
 		DButton.Parent = DController
 		DButton.Name = Decrypt()
@@ -502,23 +530,23 @@ function Library()
 		DButton.Size = UDim2.new(0, 23, 0, 23)
 		DButton.Text = ""
 		DButton.Visible = true
-
+		
 		local UICDButton = Instance.new("UICorner")
 		UICDButton.Parent = DButton
 		UICDButton.CornerRadius = UDim.new(8, 8)
-
+		
 		local UISDButton = Instance.new("UIStroke")
 		UISDButton.Parent = DButton
 		UISDButton.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
 		UISDButton.Color = Color3.new(1, 1, 1)
 		UISDButton.Thickness = 1
-
+		
 		DButton.MouseButton1Click:Connect(function()
 			functions[data] = not functions[data]
 			AnimateButtons(DButton, functions[data])
 			func()
 		end)
-
+		
 		if keybind ~= false then
 			local keybindmenu = Instance.new("TextLabel")
 			keybindmenu.Parent = DController
@@ -529,30 +557,30 @@ function Library()
 			keybindmenu.TextColor3 = Color3.new(1, 1, 1)
 			keybindmenu.TextScaled = true
 			keybindmenu.Visible = true
-
+			
 			local UICkeybindmenu = Instance.new("UICorner")
 			UICkeybindmenu.Parent = keybindmenu
 			UICkeybindmenu.CornerRadius = UDim.new(0, 5)
-
+			
 			local UISkeybindmenu = Instance.new("UIStroke")
 			UISkeybindmenu.Parent = keybindmenu
 			UISkeybindmenu.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
 			UISkeybindmenu.Color = Color3.new(1, 0, 0)
 			UISkeybindmenu.Thickness = 1
-
+			
 			local entered = false
 			local inprocces = false
-
+			
 			if keybinds[keybind] == nil then
 				keybindmenu.Text = "None"
 			else
 				keybindmenu.Text = tostring(keybinds[keybind]):gsub("Enum.KeyCode.", "")
 			end
-
+			
 			keybindmenu.MouseEnter:Connect(function()
 				entered = true
 			end)
-
+			
 			keybindmenu.MouseLeave:Connect(function()
 				entered = false
 				keybinds[keybind] = keybinds[keybind]
@@ -562,7 +590,7 @@ function Library()
 					keybindmenu.Text = tostring(keybinds[keybind]):gsub("Enum.KeyCode.", "")
 				end
 			end)
-
+			
 			input.InputBegan:Connect(function(key, gp)
 				if gp then return end
 				if entered and key.UserInputType == Enum.UserInputType.MouseButton1 then
@@ -582,7 +610,7 @@ function Library()
 					end)
 				end
 			end)
-
+			
 			input.InputBegan:Connect(function(key, gp)
 				if gp then return end
 				if key.KeyCode == keybinds[keybind] then
@@ -592,13 +620,13 @@ function Library()
 				end
 			end)
 		end
-
+		
 		local setindex = {button = DButton, data = data, func = func}
 		table.insert(index, setindex)
-
+		
 		return DButton
 	end
-
+	
 	function Frames:MakeSection(Parent)
 		local section = Instance.new("Frame")
 		section.Parent = Parent
@@ -606,17 +634,17 @@ function Library()
 		section.BackgroundTransparency = 1
 		section.Size = UDim2.new(0.9, 0, 0.3, 0)
 		section.Visible = true
-
+		
 		local UICsection = Instance.new("UICorner")
 		UICsection.Parent = section
 		UICsection.CornerRadius = UDim.new(0, 5)
-
+		
 		local UISsection = Instance.new("UIStroke")
 		UISsection.Parent = section
 		UISsection.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
 		UISsection.Color = Color3.new(1, 0, 0)
 		UISsection.Thickness = 1
-
+		
 		local UILsection = Instance.new("UIListLayout")
 		UILsection.Parent = section
 		UILsection.Padding = UDim.new(0, 10)
@@ -626,7 +654,7 @@ function Library()
 		UILsection.HorizontalFlex = Enum.UIFlexAlignment.None
 		UILsection.VerticalAlignment = Enum.VerticalAlignment.Top
 		UILsection.VerticalFlex = Enum.UIFlexAlignment.None
-
+		
 		local UIPsection = Instance.new("UIPadding")
 		UIPsection.Parent = section
 		UIPsection.PaddingBottom = UDim.new(0, 0)
@@ -637,10 +665,10 @@ function Library()
 		UILsection:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
 			section.Size = UDim2.new(0.9, 0, 0, UILsection.AbsoluteContentSize.Y + 15)
 		end)
-
+		
 		return section
 	end
-
+	
 	function Buttons:MakeSectionDefaultButton(Parent, Text, data, keybind, func)
 		local text = Instance.new("TextLabel")
 		text.Parent = Parent
@@ -813,7 +841,7 @@ function Library()
 		return Checkbox
 	end
 	
-	function Frames:MakeSectionSlider(Parent, Text)
+	function Frames:MakeSectionSlider(Parent, Text, startervalue, min, max, func)
 		local text = Instance.new("TextLabel")
 		text.Parent = Parent
 		text.Name = Decrypt()
@@ -847,7 +875,7 @@ function Library()
 		Slider.Name = Decrypt()
 		Slider.BackgroundColor3 = Color3.new(1, 1, 1)
 		Slider.Position = UDim2.new(0, 0, 0, 0)
-		Slider.Size = UDim2.new(0, 29, 0, 25)
+		Slider.Size = UDim2.new(math.clamp((startervalue - min)/(max - min), 0.1, 1), 0, 0, 25)
 		Slider.Text = ""
 		Slider.Visible = true
 		
@@ -863,9 +891,38 @@ function Library()
 		value.Size = UDim2.new(0, 25, 0, 25)
 		value.TextColor3 = Color3.new(1, 1, 1)
 		value.TextScaled = true
+		value.Text = startervalue
+		
+		local slide = false
+		
+		Slider.MouseButton1Down:Connect(function()
+			slide = true
+		end)
+		
+		input.InputEnded:Connect(function(key)
+			if key.UserInputType == Enum.UserInputType.MouseButton1 then
+				slide = false
+			end
+		end)
+		
+		input.InputChanged:Connect(function(key)
+			if key.UserInputType == Enum.UserInputType.MouseMovement and slide then
+				local mousepos = input:GetMouseLocation().X
+				local scale = (mousepos - Control.AbsolutePosition.X)/Control.AbsoluteSize.X
+				local clamp = math.clamp(scale, 0.1, 1)
+				Slider.Size = UDim2.fromScale(clamp, 1)
+				local clampvalue = math.clamp(min + (scale * (max - min)), min, max)
+				if clampvalue < 10 then
+					value.Text = string.format("%.2f", clampvalue)
+				else
+					value.Text = math.floor(clampvalue)
+				end
+				func(clampvalue)
+			end
+		end)
 	end
 	
-	function Buttons:MakeSectionPressButton(Parent, Text)
+	function Buttons:MakeSectionPressButton(Parent, Text, func)
 		local text = Instance.new("TextLabel")
 		text.Parent = Parent
 		text.Name = Decrypt()
@@ -894,6 +951,12 @@ function Library()
 		button.Size = UDim2.new(0, 25, 0, 25)
 		button.Image = "rbxassetid://2769398451"
 		button.Visible = true
+		
+		button.MouseButton1Click:Connect(function()
+			if func then
+				func()
+			end
+		end)
 	end
 	
 	function Buttons:MakeColorWheelSection(Parent)
@@ -907,7 +970,7 @@ function Library()
 		
 		return colorwheel
 	end
-
+	
 	function Frames:MakeSlider(Parent, index, startervalue, min, max, func)
 		local SliderText = Instance.new("TextLabel")
 		SliderText.Parent = Parent
@@ -918,17 +981,17 @@ function Library()
 		SliderText.TextColor3 = Color3.new(1, 1, 1)
 		SliderText.Text = index
 		SliderText.Visible = true
-
+		
 		local UICSliderText = Instance.new("UICorner")
 		UICSliderText.Parent = SliderText
 		UICSliderText.CornerRadius = UDim.new(0, 5)
-
+		
 		local UISSliderText = Instance.new("UIStroke")
 		UISSliderText.Parent = SliderText
 		UISSliderText.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
 		UISSliderText.Color = Color3.new(1, 0, 0)
 		UISSliderText.Thickness = 1
-
+		
 		local SliderControl = Instance.new("Frame")
 		SliderControl.Parent = SliderText
 		SliderControl.Name = Decrypt()
@@ -936,17 +999,17 @@ function Library()
 		SliderControl.Position = UDim2.new(1.203, 0, 0, 0)
 		SliderControl.Size = UDim2.new(0, 160, 0 ,28)
 		SliderControl.Visible = true
-
+		
 		local UICSliderControl = Instance.new("UICorner")
 		UICSliderControl.Parent = SliderControl
 		UICSliderControl.CornerRadius = UDim.new(8, 8)
-
+		
 		local UISSliderControl = Instance.new("UIStroke")
 		UISSliderControl.Parent = SliderControl
 		UISSliderControl.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
 		UISSliderControl.Color = Color3.new(1, 0, 0)
 		UISSliderControl.Thickness = 1
-
+		
 		local SliderButton = Instance.new("TextButton")
 		SliderButton.Parent = SliderControl
 		SliderButton.Name = Decrypt()
@@ -955,11 +1018,11 @@ function Library()
 		SliderButton.Size = UDim2.new(math.clamp((startervalue - min)/(max - min), 0.1, 1), 0, 0, 28)
 		SliderButton.Text = ""
 		SliderButton.Visible = true
-
+		
 		local UICSliderButton = Instance.new("UICorner")
 		UICSliderButton.Parent = SliderButton
 		UICSliderButton.CornerRadius = UDim.new(8, 8)
-
+		
 		local SliderValue = Instance.new("TextLabel")
 		SliderValue.Parent = SliderControl
 		SliderValue.BackgroundTransparency = 1
@@ -968,19 +1031,19 @@ function Library()
 		SliderValue.TextScaled = true
 		SliderValue.TextColor3 = Color3.new(1, 1, 1)
 		SliderValue.Text = math.floor(startervalue)
-
+		
 		local canuse = false
-
+		
 		SliderButton.MouseButton1Down:Connect(function()
 			canuse = true
 		end)
-
+		
 		input.InputEnded:Connect(function(key)
 			if key.UserInputType == Enum.UserInputType.MouseButton1 then
 				canuse = false
 			end
 		end)
-
+		
 		input.InputChanged:Connect(function(key)
 			if key.UserInputType == Enum.UserInputType.MouseMovement and canuse then
 				local getmousepos = input:GetMouseLocation().X
@@ -1002,12 +1065,12 @@ function Library()
 				func(value)
 			end
 		end)
-
+		
 		local data = {}
-
+		
 		return SliderText
 	end
-
+	
 	function Buttons:MakeClickButton(Parent, Text, func)
 		local presstext = Instance.new("TextLabel")
 		presstext.Parent = Parent
@@ -1018,17 +1081,17 @@ function Library()
 		presstext.TextColor3 = Color3.new(1, 1, 1)
 		presstext.Text = Text
 		presstext.Visible = true
-
+		
 		local UICpresstext = Instance.new("UICorner")
 		UICpresstext.Parent = presstext
 		UICpresstext.CornerRadius = UDim.new(0, 5)
-
+		
 		local UISpresstext = Instance.new("UIStroke")
 		UISpresstext.Parent = presstext
 		UISpresstext.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
 		UISpresstext.Color = Color3.new(1, 0, 0)
 		UISpresstext.Thickness = 1
-
+		
 		local pressbutton = Instance.new("ImageButton")
 		pressbutton.Parent = presstext
 		pressbutton.Name = Decrypt()
@@ -1037,11 +1100,11 @@ function Library()
 		pressbutton.Size = UDim2.new(0, 32, 0, 32)
 		pressbutton.Image = "rbxassetid://2769398451"
 		pressbutton.Visible = true
-
+		
 		pressbutton.MouseButton1Click:Connect(function()
 			func()
 		end)
-
+		
 		return pressbutton
 	end
 	
@@ -1110,7 +1173,7 @@ function Library()
 				btn.Text = a
 				btn.ZIndex = 5
 				btn.Visible = true
-
+				
 				local UISbutton = Instance.new("UIStroke")
 				UISbutton.Parent = btn
 				UISbutton.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
@@ -1132,10 +1195,183 @@ function Library()
 		button.MouseButton1Click:Connect(function()
 			Frame.Visible = not Frame.Visible
 		end)
-
+		
 		return button
 	end
-
+	
+	function Frames:MakeBodySelector(Table)
+		local Body = Instance.new("Frame")
+		Body.Parent = GUI
+		Body.Name = "Body"
+		Body.BackgroundColor3 = Color3.new(0, 0, 0)
+		Body.Position = UDim2.new(0.715, 0, 0.131, 0)
+		Body.Size = UDim2.new(0.3, 0, 0.3, 0)
+		Body.Visible = true
+		
+		local uiabody = Instance.new("UIAspectRatioConstraint")
+		uiabody.Parent = Body
+		uiabody.AspectRatio = 1
+		uiabody.AspectType = Enum.AspectType.FitWithinMaxSize
+		uiabody.DominantAxis = Enum.DominantAxis.Width
+		
+		local Head = Instance.new("TextButton")
+		Head.Parent = Body
+		Head.Name = "Head"
+		Head.BackgroundColor3 = Color3.new(1,1 , 1)
+		Head.BorderColor3 = Color3.new(0, 0, 0)
+		Head.BorderSizePixel = 2
+		Head.Position = UDim2.new(0.394, 0, 0.055, 0)
+		Head.Size = UDim2.new(0.203, 0, 0.203, 0)
+		Head.Text = ""
+		Head.Visible = true
+		
+		local Torso = Instance.new("TextButton")
+		Torso.Parent = Body
+		Torso.Name = "Torso"
+		Torso.Position = UDim2.new(0.321, 0, 0.261, 0)
+		Torso.Size = UDim2.new(0.344, 0, 0.344, 0)
+		Torso.BackgroundColor3 = Color3.new(1, 1, 1)
+		Torso.BorderColor3 = Color3.new(0, 0, 0)
+		Torso.BorderSizePixel = 1
+		Torso.Text = ""
+		Torso.Visible = true
+		
+		local LeftArm = Instance.new("TextButton")
+		LeftArm.Parent = Body
+		LeftArm.Name = "LeftArm"
+		LeftArm.BackgroundColor3 = Color3.new(1,1 , 1)
+		LeftArm.Position = UDim2.new(0.665, 0, 0.261, 0)
+		LeftArm.Size = UDim2.new(0.172, 0, 0.344, 0)
+		LeftArm.Text = ""
+		LeftArm.Visible = true
+		
+		local RightArm = Instance.new("TextButton")
+		RightArm.Parent = Body
+		RightArm.Name = "RightArm"
+		RightArm.BackgroundColor3 = Color3.new(1, 1, 1)
+		RightArm.Position = UDim2.new(0.147, 0, 0.261, 0)
+		RightArm.Size = UDim2.new(0.172, 0, 0.344, 0)
+		RightArm.Text = ""
+		RightArm.Visible = true
+		
+		local LeftLeg = Instance.new("TextButton")
+		LeftLeg.Parent = Body
+		LeftLeg.Name = "LeftLeg"
+		LeftLeg.BackgroundColor3 = Color3.new(1, 1, 1)
+		LeftLeg.Position = UDim2.new(0.5, 0, 0.605, 0)
+		LeftLeg.Size = UDim2.new(0.172, 0, 0.344, 0)
+		LeftLeg.Text = ""
+		LeftLeg.Visible = true
+		
+		local RightLeg = Instance.new("TextButton")
+		RightLeg.Parent = Body
+		RightLeg.Name = "RightLeg"
+		RightLeg.BackgroundColor3 = Color3.new(1, 1, 1)
+		RightLeg.Position = UDim2.new(0.321, 0, 0.605, 0)
+		RightLeg.Size = UDim2.new(0.163, 0, 0.344, 0)
+		RightLeg.Text = ""
+		RightLeg.Visible = true
+		
+		local check1 = table.find(Table, "Head")
+		local check2 = table.find(Table, "Torso")
+		local check3 = table.find(Table, "Left Arm")
+		local check4 = table.find(Table, "Right Arm")
+		local check5 = table.find(Table, "Left Leg")
+		local check6 = table.find(Table, "Right Leg")
+		
+		if check1 then
+			Head.BackgroundColor3 = Color3.new(0.0666667, 1, 0)
+		end
+		
+		if check2 then
+			Torso.BackgroundColor3 = Color3.new(0, 1, 0.0313725)
+		end
+		
+		if check3 then
+			LeftArm.BackgroundColor3 = Color3.new(0.0666667, 1, 0)
+		end
+		
+		if check4 then
+			RightArm.BackgroundColor3 = Color3.new(0.133333, 1, 0)
+		end
+		
+		if check5 then
+			LeftLeg.BackgroundColor3 = Color3.new(0.101961, 1, 0)
+		end
+		
+		if check6 then
+			RightLeg.BackgroundColor3 = Color3.new(0.0156863, 1, 0)
+		end
+		
+		Head.MouseButton1Click:Connect(function()
+			local check = table.find(Table, "Head")
+			if not check then
+				table.insert(Table, "Head")
+				Head.BackgroundColor3 = Color3.new(0.0509804, 1, 0)
+			else
+				table.remove(Table, check)
+				Head.BackgroundColor3 = Color3.new(1, 1, 1)
+			end
+		end)
+		
+		Torso.MouseButton1Click:Connect(function()
+			local check = table.find(Table, "Torso")
+			if not check then
+				table.insert(Table, "Torso")
+				Torso.BackgroundColor3 = Color3.new(0.0666667, 1, 0)
+			else
+				table.remove(Table, check)
+				Torso.BackgroundColor3 = Color3.new(1, 1, 1)
+			end
+		end)
+		
+		LeftArm.MouseButton1Click:Connect(function()
+			local check = table.find(Table, "Left Arm")
+			if not check then
+				table.insert(Table, "Left Arm")
+				LeftArm.BackgroundColor3 = Color3.new(0, 1, 0.0666667)
+			else
+				table.remove(Table, check)
+				LeftArm.BackgroundColor3 = Color3.new(1, 1, 1)
+			end
+		end)
+		
+		RightArm.MouseButton1Click:Connect(function()
+			local check = table.find(Table, "Right Arm")
+			if not check then
+				table.insert(Table, "Right Arm")
+				RightArm.BackgroundColor3 = Color3.new(0, 1, 0.0823529)
+			else
+				table.remove(Table, check)
+				RightArm.BackgroundColor3 = Color3.new(1, 1, 1)
+			end
+		end)
+		
+		LeftLeg.MouseButton1Click:Connect(function()
+			local check = table.find(Table, "Left Leg")
+			if not check then
+				table.insert(Table, "Left Leg")
+				LeftLeg.BackgroundColor3 = Color3.new(0, 1, 0.0666667)
+			else
+				table.remove(Table, check)
+				LeftLeg.BackgroundColor3 = Color3.new(1, 1, 1)
+			end
+		end)
+		
+		RightLeg.MouseButton1Click:Connect(function()
+			local check = table.find(Table, "Right Leg")
+			if not check then
+				table.insert(Table, "Right Leg")
+				RightLeg.BackgroundColor3 = Color3.new(0.0156863, 1, 0)
+			else
+				table.remove(Table, check)
+				RightLeg.BackgroundColor3 = Color3.new(1, 1, 1)
+			end
+		end)
+		
+		return Body
+	end
+	
 	return {Tabs = Tabs, Buttons = Buttons, Frames = Frames}
 end
 
@@ -1149,7 +1385,7 @@ Frames:MakeNotif("Welcome! 👻 ", "Join to our discord! \n discrod.gg/getghost"
 function AnimateButtons(button, value)
 	local enabled = UDim2.new(0.53, 0, 0.071, 0)
 	local disabled = UDim2.new(0.07, 0, 0.071, 0)
-
+	
 	if value == true then
 		tween:Create(button, TweenInfo.new(0.2), {Position = enabled}):Play()
 		button.BackgroundColor3 = Color3.new(0.184314, 1, 0)
@@ -1162,7 +1398,7 @@ end
 function AnimateButtons2(button, value)
 	local enabled = UDim2.new(0.4, 0, 0.085, 0)
 	local disabled = UDim2.new(0.07, 0, 0.085, 0)
-
+	
 	if value == true then
 		tween:Create(button, TweenInfo.new(0.2), {Position = enabled}):Play()
 		button.BackgroundColor3 = Color3.new(0.184314, 1, 0)
@@ -1176,11 +1412,11 @@ local WorldTab = Tabs:MakeTab("World")
 local PlayerTab = Tabs:MakeTab("Player")
 local MainTab = Tabs:MakeTab("Main")
 local VisualTab = Tabs:MakeTab("Visual")
-local SkinsTab = Tabs:MakeTab("Skins")
+--[[local SkinsTab = Tabs:MakeTab("Skins")
 local FarmTab = Tabs:MakeTab("Farm")
 local EventsTab = Tabs:MakeTab("Events")
 local SettingsTab = Tabs:MakeTab("Settings")
-local ConfigTab = Tabs:MakeTab("Config")
+local ConfigTab = Tabs:MakeTab("Config")]]
 
 --// WORLD \\--
 local MakeWorldMenu = Tabs:MakeFrameMenu(true, WorldTab)
@@ -1220,7 +1456,7 @@ local Fullbright = Buttons:MakeDefaultButton(MakeWorldMenu, "Fullbright", "Fullb
 		light.ExposureCompensation = .7
 	else
 		Folder = rp:FindFirstChild("Index")
-
+		
 		if Folder ~= nil then
 			for _, a in pairs(Folder:GetChildren()) do
 				a.Parent = light
@@ -1254,7 +1490,7 @@ local AutoOpenDoors = Buttons:MakeDefaultButton(MakeWorldMenu, "Auto open doors"
 				if not mapFolder then return nil end
 				local folderDoors = mapFolder:FindFirstChild("Doors")
 				if not folderDoors then return nil end
-
+				
 				local closestDoor, dist = nil, 15
 				for _, door in pairs(folderDoors:GetChildren()) do
 					local doorBase = door:FindFirstChild("DoorBase")
@@ -1268,7 +1504,7 @@ local AutoOpenDoors = Buttons:MakeDefaultButton(MakeWorldMenu, "Auto open doors"
 				end
 				return closestDoor
 			end
-
+			
 			local door = GetDoor()
 			if door then
 				local values = door:FindFirstChild("Values")
@@ -1343,13 +1579,13 @@ local AutoPickupScraps = Buttons:MakeDefaultButton(MakeWorldMenu, "Auto pickup s
 	local scrapsfolder = workspace.Filter.SpawnedPiles
 	local canPickup = true
 	local startTick = tick()
-
+	
 	if functions.AutoPickupScraps then
 		RUNS.AutopickupScraps = run.RenderStepped:Connect(function()
 			local function GetClosestScrap()
 				local maxdist = 15
 				local closest = nil
-
+				
 				for _, a in pairs(scrapsfolder:GetChildren()) do
 					if a and (a.Name == "S1" or a.Name == "S2") then
 						if me.Character and me.Character.HumanoidRootPart then
@@ -1364,7 +1600,7 @@ local AutoPickupScraps = Buttons:MakeDefaultButton(MakeWorldMenu, "Auto pickup s
 				maxdist = 15
 				return closest
 			end
-
+			
 			local getscrap = GetClosestScrap()
 			if getscrap then
 				if canPickup then
@@ -1390,13 +1626,13 @@ local AutoPickupTools = Buttons:MakeDefaultButton(MakeWorldMenu, "Auto pickup to
 	local toolsfolder = workspace.Filter.SpawnedTools
 	local canPickup = true
 	local startTick = tick()
-
+	
 	if functions.AutoPickupTools then
 		RUNS.AutopickupTools = run.RenderStepped:Connect(function()
 			local function GetClosestTool()
 				local maxdist = 15
 				local closest = nil
-
+				
 				for _, a in pairs(toolsfolder:GetChildren()) do
 					if a and me.Character and me.Character.HumanoidRootPart then
 						local handle = a:FindFirstChild("Handle") or a:FindFirstChild("WeaponHandle")
@@ -1414,7 +1650,7 @@ local AutoPickupTools = Buttons:MakeDefaultButton(MakeWorldMenu, "Auto pickup to
 				maxdist = 15
 				return closest
 			end
-
+			
 			local tool = GetClosestTool()
 			if tool then
 				local Handle = tool:FindFirstChild("Handle") or tool:FindFirstChild("WeaponHandle")
@@ -1446,14 +1682,14 @@ local AutoPickupMoney = Buttons:MakeDefaultButton(MakeWorldMenu, "Auto pickup mo
 	local moneyfolder = workspace.Filter.SpawnedBread
 	local canPickup = true
 	local startTick = tick()
-
+	
 	if functions.AutoPickupMoney then
 		RUNS.AutopickupMoney = run.RenderStepped:Connect(function()
-
+			
 			local function GetMoney()
 				local maxdist = 15
 				local closest = nil
-
+				
 				for _, a in pairs(moneyfolder:GetChildren()) do
 					if a and me.Character and me.Character.HumanoidRootPart then
 						local getdist = (me.Character.HumanoidRootPart.Position - a.Position).Magnitude
@@ -1466,7 +1702,7 @@ local AutoPickupMoney = Buttons:MakeDefaultButton(MakeWorldMenu, "Auto pickup mo
 				maxdist = 15
 				return closest
 			end
-
+			
 			local foundmoney = GetMoney()
 			if foundmoney then
 				if canPickup then
@@ -1519,12 +1755,12 @@ end)
 local MakeFlyButton = Buttons:MakeDefaultButton(MakePlayerMenu, "Fly", "Fly", "Fly", function()
 	local event = game:GetService("ReplicatedStorage"):FindFirstChild("Events"):FindFirstChild("__RZDONL")
 	local flyspeed = 60
-
+	
 	local function fly(hrp)
 		if functions.Fly then
 			RUNS.Fly = run.RenderStepped:Connect(function()
 				local moveVector = Vector3.new(0, 0, 0)
-
+				
 				if input:IsKeyDown(Enum.KeyCode.W) then
 					moveVector = moveVector + (camera.CoordinateFrame.lookVector * flyspeed)
 				end
@@ -1537,7 +1773,7 @@ local MakeFlyButton = Buttons:MakeDefaultButton(MakePlayerMenu, "Fly", "Fly", "F
 				if input:IsKeyDown(Enum.KeyCode.D) then
 					moveVector = moveVector + (camera.CoordinateFrame.rightVector * flyspeed)
 				end
-
+				
 				hrp.Velocity = moveVector
 				if Methods.Fly == "Bypass" then
 					event:FireServer("__---r", Vector3.new(0, 0, 0), hrp.CFrame, false)
@@ -1551,7 +1787,7 @@ local MakeFlyButton = Buttons:MakeDefaultButton(MakePlayerMenu, "Fly", "Fly", "F
 			hrp.Velocity = Vector3.new(0, 0, 0)
 		end
 	end
-
+	
 	local char = me.Character
 	if me.Character then
 		fly(char:FindFirstChild("HumanoidRootPart"))
@@ -1652,7 +1888,7 @@ local MakeNoclipButton = Buttons:MakeDefaultButton(MakePlayerMenu, "Noclip", "No
 				end
 			end
 		end
-
+		
 		RUNS.Noclip = run.RenderStepped:Connect(LoopNoclip)
 	else
 		if RUNS.Noclip then
@@ -1738,28 +1974,51 @@ end)
 local MakeSilentaimSection = Frames:MakeSection(_LeftBoxMainMenu)
 local SilentAim = Buttons:MakeSectionDefaultButton(MakeSilentaimSection, "Silent aim", "SilentAim", false, function()
 	if functions.SilentAim then
-		local radius = 90
 		local target = nil
-
-		cockie.SilentAimCircle = Drawing.new("Circle")
-		cockie.SilentAimCircle.Color = Color3.new(1, 1, 1)
-		cockie.SilentAimCircle.Filled = false
-		cockie.SilentAimCircle.Radius = radius
-		cockie.SilentAimCircle.Thickness = 1
-
+		
 		local function GetClosest()
 			target = nil
-			local shortest = radius
+			local shortest = SectionSettings.SilentAim.DrawSize
 			for _, a in pairs(plrs:GetPlayers()) do
 				if a ~= me and a.Character then
+					
+					if SectionSettings.SilentAim.CheckDowned and CharStats(a).Downed.Value == true then
+						continue
+					end
+					
+					if SectionSettings.SilentAim.CheckTeam and a.Team == me.Team then
+						continue
+					end
+					
+					if SectionSettings.SilentAim.CheckWhiteList and table.find(WhiteList, a) then
+						continue
+					end
+					
 					local hrp = a.Character:FindFirstChild("HumanoidRootPart")
 					if hrp then
 						local screenpos, onScreen = camera:WorldToViewportPoint(hrp.Position)
 						if onScreen then
+							
+							--[[if SectionSettings.SilentAim.CheckWall then
+								local function Check()
+									local ignore = {camera, me.Character, a.Character}
+									if a.Parent ~= workspace then
+										table.insert(ignore, a.Parent)
+									end
+									
+									local checkpart = a.Character:FindFirstChild("HumanoidRootPart")
+									if not checkpart then return math.huge end
+									return #camera:GetPartsObscuringTarget({checkpart.Position}, ignore)
+								end
+								local value = Check()
+								if value > 0 then
+									continue
+								end
+							end]]
+							
 							local mousePos = input:GetMouseLocation()
 							local dist = (Vector2.new(mousePos.X, mousePos.Y) - Vector2.new(screenpos.X, screenpos.Y)).Magnitude
 							if dist < shortest then
-								shortest = dist
 								target = a
 							end
 						end
@@ -1767,22 +2026,21 @@ local SilentAim = Buttons:MakeSectionDefaultButton(MakeSilentaimSection, "Silent
 				end
 			end
 		end
-
+		
 		run.RenderStepped:Connect(GetClosest)
-
+		
 		local VisualizeEvent = game:GetService("ReplicatedStorage").Events2.Visualize
 		local DamageEvent = game:GetService("ReplicatedStorage").Events["ZFKLF__H"]
-
+		
 		VisualizeEvent.Event:Connect(function(_, ShotCode, _, Gun, _, StartPos, BulletsPerShot)
 			if not functions.SilentAim then return end
-			if not Gun or not target or not target.Character then return end
+			if not Gun or not target or not target.Character or not target.Character:FindFirstChild("Humanoid") or target.Character:FindFirstChild("Humanoid").Health == 0 then return end
 			if not me.Character or not me.Character:FindFirstChildOfClass("Tool") then return end
-
-			local parts = {"Head", "Torso"}
-			local rand = math.random(1, #parts)
-			local targetPart = target.Character:FindFirstChild(parts[rand])
+			
+			local parts = SectionSettings.SilentAim.TargetParts[math.random(1, #SectionSettings.SilentAim.TargetParts)] or SectionSettings.SilentAim.TargetParts[1] or "Head"
+			local targetPart = target.Character:FindFirstChild(parts)
 			if not targetPart then return end
-
+			
 			local partPos = targetPart.Position
 			local Bullets = {}
 			for i = 1, math.clamp(#BulletsPerShot, 1, 100) do
@@ -1792,15 +2050,32 @@ local SilentAim = Buttons:MakeSectionDefaultButton(MakeSilentaimSection, "Silent
 			for i, dir in pairs(Bullets) do
 				DamageEvent:FireServer("🧈", Gun, ShotCode, i, targetPart, partPos, dir)
 			end
-
+			
 			if Gun:FindFirstChild("Hitmarker") then
 				Gun.Hitmarker:Fire(targetPart)
 			end
 		end)
-
+		
 		while functions.SilentAim do
-			local mousePos = input:GetMouseLocation()
-			cockie.SilentAimCircle.Position = Vector2.new(mousePos.X, mousePos.Y)
+			if SectionSettings.SilentAim.Draw then
+				if not cockie.SilentAimCircle then
+					cockie.SilentAimCircle = Drawing.new("Circle")
+					cockie.SilentAimCircle.Color = Color3.new(1, 1, 1)
+					cockie.SilentAimCircle.Filled = false
+					cockie.SilentAimCircle.Radius = SectionSettings.SilentAim.DrawSize
+					cockie.SilentAimCircle.Thickness = 1
+				end
+			else
+				if cockie.SilentAimCircle then
+					cockie.SilentAimCircle:Remove()
+					cockie.SilentAimCircle = nil
+				end
+			end
+			
+			if SectionSettings.SilentAim.Draw and cockie.SilentAimCircle then
+				local mousePos = input:GetMouseLocation()
+				cockie.SilentAimCircle.Position = Vector2.new(mousePos.X, mousePos.Y)
+			end
 			run.Heartbeat:Wait()
 		end
 	else
@@ -1811,111 +2086,445 @@ local SilentAim = Buttons:MakeSectionDefaultButton(MakeSilentaimSection, "Silent
 	end
 end)
 local MakeSilentAimDrawCircle = Buttons:MakeSectionCheckboxButton(MakeSilentaimSection, "Draw circle", "SilentAim", "Draw")
-local MakeSilentAimDrawSizeSlider = Frames:MakeSectionSlider(MakeSilentaimSection, "Size")
-local MakeSilentColorWheelCircle = Buttons:MakeColorWheelSection(MakeSilentAimDrawCircle)
-local MakeSilentAimTargetPart = Buttons:MakeSectionPressButton(MakeSilentaimSection, "Target part")
-local MakeSilentAimCheckwall = Buttons:MakeSectionCheckboxButton(MakeSilentaimSection, "Check wall", "SilentAim", "CheckWall")
---local MakeSilentAimCheckteam = Buttons:MakeSectionCheckboxButton(MakeSilentAimSection, "")
+local MakeSilentAimDrawSizeSlider = Frames:MakeSectionSlider(MakeSilentaimSection, "Size", SectionSettings.SilentAim.DrawSize, 20, 500, function(val)
+	SectionSettings.SilentAim.DrawSize = math.floor(val)
+	if cockie.SilentAimCircle then
+		cockie.SilentAimCircle.Radius = SectionSettings.SilentAim.DrawSize
+	end
+end)
+--local MakeSilentColorWheelCircle = Buttons:MakeColorWheelSection(MakeSilentAimDrawCircle)
+local MakeSilentAimTargetPart = Buttons:MakeSectionPressButton(MakeSilentaimSection, "Target part", function()
+	if cockie.SilentAim_body then
+		cockie.SilentAim_body:Destroy()
+		cockie.SilentAim_body = nil
+	else
+		cockie.SilentAim_body = Frames:MakeBodySelector(SectionSettings.SilentAim.TargetParts)
+	end
+end)
+local MakeSilentAimCheckDowned = Buttons:MakeSectionCheckboxButton(MakeSilentaimSection, "Check downed", "SilentAim", "CheckDowned")
+--local MakeSilentAimCheckwall = Buttons:MakeSectionCheckboxButton(MakeSilentaimSection, "Check wall", "SilentAim", "CheckWall")
+local MakeSilentAimCheckteam = Buttons:MakeSectionCheckboxButton(MakeSilentaimSection, "Check team", "SilentAim", "CheckTeam")
+--local MakeSilentAimCheckWhiteList = Buttons:MakeSectionCheckboxButton(MakeSilentaimSection, "Check white list", "SilentAim", "CheckWhiteList")
 
 local MakeAimbotSection = Frames:MakeSection(_RightBoxManMenu)
-local Aimbot = Buttons:MakeSectionDefaultButton(MakeAimbotSection, "Aim bot")
-local MakeAimbotDrawCircle = Buttons:MakeSectionCheckboxButton(MakeAimbotSection, "Draw circle", "Aimbot", "Draw")
-local MakeAimbotDrawSizeSlider = Frames:MakeSectionSlider(MakeAimbotSection, "Size")
-local MakeAimbotTargetPart = Buttons:MakeSectionPressButton(MakeAimbotSection, "Target part")
-
-local MakeMeleeauraSection = Frames:MakeSection(_LeftBoxMainMenu)
-local Meleeaura = Buttons:MakeSectionDefaultButton(MakeMeleeauraSection, "Melee aura", "Meleeaura", "Meleeaura", function()
-	local maxdist = 15
-	local remote1 = game:GetService("ReplicatedStorage").Events["XMHH.2"]
-	local remote2 = game:GetService("ReplicatedStorage").Events["XMHH2.2"]
-
-	function Attack(target)
-		if not (target and target:FindFirstChild("Head")) then return end
-
-		local mychar = me.Character
-		if not mychar then return end
-		local TOOL = mychar:FindFirstChildOfClass("Tool")
-		if not TOOL then return end
-
-		local result = remote1:InvokeServer("🍞", tick(), TOOL, "43TRFWX", "Normal", tick(), true)
-
-		task.wait(0.3 + math.random() * 0.2)
-
-		if TOOL then
-
-			local Handle = TOOL:FindFirstChild("WeaponHandle") or TOOL:FindFirstChild("Handle") or me.Character:FindFirstChild("Right Arm")
-			local arg2 = {
-				[1] = "🍞",
-				[2] = tick(),
-				[3] = TOOL,
-				[4] = "2389ZFX34",
-				[5] = result,
-				[6] = true,
-				[7] = Handle,
-				[8] = target:FindFirstChild("Head"),
-				[9] = target,
-				[10] = me.Character:FindFirstChild("HumanoidRootPart").Position,
-				[11] = target:FindFirstChild("Head").Position
-			}
-			if TOOL.Name == "Chainsaw" then
-				for i = 1, 15 do
-					remote2:FireServer(unpack(arg2)) 
-				end
-			else
-				remote2:FireServer(unpack(arg2))
-			end
-		else
-			return
-		end
-	end
-
-	if functions.Meleeaura then
-		RUNS.Meleeaura = run.RenderStepped:Connect(function()
-			local mychar = me.Character or me.CharacterAdded:Wait()
-			if mychar then
-				local myhrp = mychar:FindFirstChild("HumanoidRootPart")
-				if myhrp then
-					for _, a in ipairs(plrs:GetPlayers()) do
-						if a ~= me then
-							local char = a.Character
-							if char then
-								local hrp = char:FindFirstChild("HumanoidRootPart")
-								if hrp then
-									local distance = (myhrp.Position - hrp.Position).Magnitude
-									if distance < maxdist and a.Character:FindFirstChildOfClass("Humanoid").Health > 15 and not char:FindFirstChildOfClass("ForceField") then
-										maxdist = distance
-										Attack(char)
-									end
+local Aimbot = Buttons:MakeSectionDefaultButton(MakeAimbotSection, "Aim bot", "AimBot", false, function()
+	if functions.AimBot == true then
+		local target = nil
+		local pressed = false
+		local aimtarget
+		local canusing = false
+		local FirstPerson = true
+		local predict = 15
+		
+		local part
+		local randpart = nil
+		
+		local lastRandomTick = tick()
+		
+		local function getClosestTarget()
+			local closest, closestDist = nil, SectionSettings.Aimbot.DrawSize
+			for _, player in pairs(plrs:GetPlayers()) do
+				if player ~= me and player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
+					local pos, onScreen = camera:WorldToViewportPoint(player.Character:FindFirstChild("HumanoidRootPart").Position)
+					if onScreen then
+						if SectionSettings.Aimbot.CheckTeam and player.Team == me.Team then
+							continue
+						end
+						if SectionSettings.Aimbot.CheckWhiteList and table.find(WhiteList, player) then
+							continue
+						end
+						
+						if SectionSettings.Aimbot.CheckWall then
+							local function Check()
+								local ignore = {camera, me.Character, player.Character}
+								if player.Parent ~= workspace then
+									table.insert(ignore, player.Parent)
 								end
+								
+								local checkpart = player.Character:FindFirstChild("HumanoidRootPart")
+								if not checkpart then return math.huge end
+								return #camera:GetPartsObscuringTarget({checkpart.Position}, ignore)
+							end
+							local value = Check()
+							if value > 0 then
+								continue
 							end
 						end
-						maxdist = 15
+						
+						local distance = (Vector2.new(pos.X, pos.Y) - Vector2.new(input:GetMouseLocation().X, input:GetMouseLocation().Y)).Magnitude
+						if distance < closestDist then
+							closestDist = distance
+							closest = player
+						end
+					end
+				end
+			end
+			return closest
+		end
+		
+		input.InputBegan:Connect(function(key)
+			if not input:GetFocusedTextBox() then
+				if key.UserInputType == Enum.UserInputType.MouseButton2 then
+					pressed = true
+					aimtarget = getClosestTarget()
+				end
+			end
+		end)
+		
+		input.InputEnded:Connect(function(key)
+			if not input:GetFocusedTextBox() then
+				if key.UserInputType == Enum.UserInputType.MouseButton2 then
+					pressed = false
+					aimtarget = nil
+				end
+			end
+		end)
+		
+		run.RenderStepped:Connect(function()
+			if FirstPerson then
+				local magnitude = (camera.Focus.p - camera.CFrame.p).Magnitude
+				canusing = magnitude <= 1.5
+			end
+			
+			if functions.AimBot and pressed and aimtarget and aimtarget.Character then
+				local humanoid = aimtarget.Character:FindFirstChild("Humanoid")
+				local targetPartCount = #SectionSettings.Aimbot.TargetParts
+				
+				if targetPartCount == 0 then
+					part = "Head"
+				elseif targetPartCount == 1 then
+					part = SectionSettings.Aimbot.TargetParts[1]
+				elseif targetPartCount > 1 then
+					if tick() - lastRandomTick >= .5 then
+						local rand = math.random(1, targetPartCount)
+						randpart = SectionSettings.Aimbot.TargetParts[rand]
+						lastRandomTick = tick()
+					end
+					part = randpart or SectionSettings.Aimbot.TargetParts[1]
+				end
+				
+				if part and humanoid and humanoid.Health > 0 and canusing then
+					local targetPosition = aimtarget.Character[part].Position
+					if SectionSettings.Aimbot.Velocity then
+						targetPosition = targetPosition + aimtarget.Character[part].Velocity / predict
+					end
+					if SectionSettings.Aimbot.Smooth then
+						camera.CFrame = camera.CFrame:Lerp(CFrame.new(camera.CFrame.p, targetPosition), SectionSettings.Aimbot.SmoothSize)
+					else
+						camera.CFrame = CFrame.new(camera.CFrame.Position, targetPosition)
 					end
 				end
 			end
 		end)
-	else
-		if RUNS.Meleeaura then
-			RUNS.Meleeaura:Disconnect()
-			RUNS.Meleeaura = nil
+		
+		while functions.AimBot do
+			if SectionSettings.Aimbot.Draw then
+				if not cockie.AimBotCircle then
+					cockie.AimBotCircle = Drawing.new("Circle")
+					cockie.AimBotCircle.Color = Color3.new(1, 0, 0)
+					cockie.AimBotCircle.Thickness = 2
+					cockie.AimBotCircle.Radius = SectionSettings.Aimbot.DrawSize
+					cockie.AimBotCircle.Filled = false
+					cockie.AimBotCircle.Visible = true
+				end
+				local mousepos = input:GetMouseLocation()
+				if cockie.AimBotCircle then
+					cockie.AimBotCircle.Position = Vector2.new(mousepos.X, mousepos.Y)
+				end
+			end
+			run.RenderStepped:Wait()
 		end
+		
+	else
+		if cockie.AimBotCircle then cockie.AimBotCircle:Remove(); cockie.AimBotCircle = nil end
 	end
 end)
+local MakeAimbotDrawCircle = Buttons:MakeSectionCheckboxButton(MakeAimbotSection, "Draw circle", "Aimbot", "Draw")
+local MakeAimbotDrawSizeSlider = Frames:MakeSectionSlider(MakeAimbotSection, "Size", SectionSettings.Aimbot.DrawSize, 20, 500, function(val)
+	SectionSettings.Aimbot.DrawSize = math.floor(val)
+	if cockie.AimBotCircle then
+		cockie.AimBotCircle.Radius = SectionSettings.Aimbot.DrawSize
+	end
+end)
+--local MakeAimbotColorWheelCircle = Buttons:MakeColorWheelSection(MakeAimbotDrawCircle)
+local MakeAimbotTargetPart = Buttons:MakeSectionPressButton(MakeAimbotSection, "Target part")
+local MakeAimbotCheckDowned = Buttons:MakeSectionCheckboxButton(MakeAimbotSection, "Check downed", "Aimbot", "CheckDowned")
+local MakeAimbotCheckWall = Buttons:MakeSectionCheckboxButton(MakeAimbotSection, "Check wall", "Aimbot", "CheckWall")
+local MakeAimbotCheckteam = Buttons:MakeSectionCheckboxButton(MakeAimbotSection, "Check team", "Aimbot", "CheckTeam")
+--local MakeAimbotCheckWhiteList = Buttons:MakeSectionCheckboxButton(MakeAimbotSection, "Check white list", "Aimbot", "CheckWhiteList")
+local MakeAimbotVelocity = Buttons:MakeSectionCheckboxButton(MakeAimbotSection, "Velocity", "Aimbot", "Velocity")
+local MakeAimbotSmooth = Buttons:MakeSectionCheckboxButton(MakeAimbotSection, "Smooth", "Aimbot", "Smooth")
+local MakeAimbotSmoothSize = Frames:MakeSectionSlider(MakeAimbotSection, "Size", SectionSettings.Aimbot.SmoothSize, 0.1, 1, function(val)
+	SectionSettings.Aimbot.SmoothSize = val
+end)
+
+local MakeMeleeauraSection = Frames:MakeSection(_LeftBoxMainMenu)
+local Meleeaura = Buttons:MakeSectionDefaultButton(MakeMeleeauraSection, "Melee aura", "Meleeaura", "Meleeaura", function()
+	local remote1 = rp.Events["XMHH.2"]
+	local remote2 = rp.Events["XMHH2.2"]
+	
+	local part
+	local randpart = nil
+	
+	local LastTick = tick()
+	local AttachTick = tick()
+	
+	local attach = false
+	local attachcd = .1
+	
+	local AttachCD = {
+		["Fists"] = .05,
+		["Knuckledusters"] = .05,
+		["Nunchucks"] = 0.05,
+		["Shiv"] = .05,
+		["Bat"] = 1,
+		["Metal-Bat"] = 1,
+		["Chainsaw"] = 2.5,
+		["Balisong"] = .05,
+		["Rambo"] = .3,
+		["Shovel"] = 3,
+		["Sledgehammer"] = 2,
+		["Katana"] = .1,
+		["Wrench"] = .1
+	}
+	
+	local function Attack(target)
+		if not (target and target:FindFirstChild("Head")) then return end
+		
+		local mychar = me.Character
+		if not mychar then return end
+		local TOOL = mychar:FindFirstChildOfClass("Tool")
+		if not TOOL then return end
+		local AnimFolder = TOOL:FindFirstChild("AnimsFolder")
+		if not AnimFolder then return end
+		local anim = AnimFolder:FindFirstChild("Slash1")
+		if not anim then return end
+		local load = me.Character:FindFirstChildOfClass("Humanoid"):FindFirstChild("Animator"):LoadAnimation(anim)
+		
+		if tick() - AttachTick >= attachcd then
+			local result = remote1:InvokeServer("🍞", tick(), TOOL, "43TRFWX", "Normal", tick(), true)
+			
+			attachcd = AttachCD[TOOL.Name] or 1/2
+			
+			if SectionSettings.MeleeAura.ShowAnim then
+				local load = me.Character:FindFirstChildOfClass("Humanoid"):FindFirstChild("Animator"):LoadAnimation(anim)
+				load:Play()
+				load:AdjustSpeed(1.3)
+			end
+			
+			task.wait(0.3 + math.random() * 0.2)
+			
+			if TOOL then
+				
+				local Handle = TOOL:FindFirstChild("WeaponHandle") or TOOL:FindFirstChild("Handle") or me.Character:FindFirstChild("Right Arm")
+				local arg2 = {
+					"🍞",
+					tick(),
+					TOOL,
+					"2389ZFX34",
+					result,
+					true,
+					Handle,
+					part,
+					target or randpart,
+					me.Character.HumanoidRootPart.Position,
+					part.Position or randpart.Position
+				}
+				if TOOL.Name == "Chainsaw" then
+					for i = 1, 15 do
+						remote2:FireServer(unpack(arg2)) 
+					end
+				else
+					remote2:FireServer(unpack(arg2))
+				end
+				AttachTick = tick()
+			else
+				return
+			end
+		end
+	end
+	
+	while functions.meleeauraF do
+		local mychar = me.Character or me.CharacterAdded:Wait()
+		if mychar then
+			local myhrp = mychar:FindFirstChild("HumanoidRootPart")
+			if myhrp then
+				for _, a in ipairs(plrs:GetPlayers()) do
+					if a ~= me then
+						local char = a.Character
+						if char then
+							local hrp = char:FindFirstChild("HumanoidRootPart")
+							if hrp then
+								local distance = (myhrp.Position - hrp.Position).Magnitude
+								if distance < SectionSettings.MeleeAura.Distance and a.Character:FindFirstChildOfClass("Humanoid").Health ~= 0 and not char:FindFirstChildOfClass("ForceField") then
+									
+									if SectionSettings.MeleeAura.CheckWhiteList and table.find(WhiteList, a) then
+										continue
+									end
+									
+									if SectionSettings.MeleeAura.CheckTeam and a.Team == me.Team then
+										continue
+									end
+									
+									if SectionSettings.MeleeAura.CheckDowned and CharStats(a).Downed.Value == true then
+										continue
+									end
+									
+									local count = #SectionSettings.MeleeAura.TargetPart
+									
+									if count == 0 then
+										part = "Head"
+									elseif count == 1 then
+										part = SectionSettings.MeleeAura.TargetPart[#SectionSettings.MeleeAura.TargetPart]
+									elseif count > 1 then
+										if tick() - LastTick >= .2 then
+											local rand = math.random(1, count)
+											randpart = SectionSettings.MeleeAura.TargetPart[rand]
+											LastTick = tick()
+										end
+										part = randpart or SectionSettings.MeleeAura.TargetPart[1]
+									end
+									
+									Attack(char)
+								end
+							end
+						end
+					end
+				end
+			end
+		end
+		run.Heartbeat:Wait()
+	end
+end)
+local MakeMeleeAuraShowAnim = Buttons:MakeSectionCheckboxButton(MakeMeleeauraSection, "Show anim", "MeleeAura", "ShowAnim")
+local MakeMeleeAuraTargetPart = Buttons:MakeSectionPressButton(MakeMeleeauraSection, "Target parts")
+local MakeMeleeAuraCheckDowned = Buttons:MakeSectionCheckboxButton(MakeMeleeauraSection, "Check downed", "MeleeAura", "CheckDowned")
+local MakeMeleeAuraCheckTeam = Buttons:MakeSectionCheckboxButton(MakeMeleeauraSection, "Check team", "MeleeAura", "CheckTeam")
+--local MakeMeleeAuraCheckWhiteList = Buttons:MakeSectionCheckboxButton(MakeMeleeauraSection, "Check white list", "MeleeAura", "CheckWhiteList")
 
 local MakeRagebotSection = Frames:MakeSection(_RightBoxManMenu)
 local RageBot = Buttons:MakeSectionDefaultButton(MakeRagebotSection, "Rage bot", "RageBot", "RageBot", function()
-	-- later
+	local function RandomString(length)
+		local res = ""
+		for i = 1, length do
+			res = res .. string.char(math.random(97, 122))
+		end
+		return res
+	end
+	
+	local function GetClosestEnemy()
+		if not me.Character 
+			or not me.Character:FindFirstChild("HumanoidRootPart") 
+		then return nil end
+		
+		local closestEnemy = nil
+		local shortestDistance = 100
+		
+		for _, player in pairs(plrs:GetPlayers()) do
+			if player == me then continue end
+			
+			local character = player.Character
+			local humanoid = character and character:FindFirstChildOfClass("Humanoid")
+			local rootPart = character and character:FindFirstChild("HumanoidRootPart")
+			
+			if character 
+				and rootPart 
+				and humanoid 
+				and humanoid.Health > 15 
+				and not character:FindFirstChildOfClass("ForceField") 
+			then
+				if SectionSettings.RageBot.CheckWhiteList and table.find(WhiteList, player) then
+					continue
+				end
+				
+				local distance = (rootPart.Position - me.Character.HumanoidRootPart.Position).Magnitude
+				if distance < shortestDistance then
+					shortestDistance = distance
+					closestEnemy = player
+				end
+			end
+		end
+		return closestEnemy
+	end
+	
+	local function Shoot(target)
+		if not target or not target.Character then return end
+		
+		local head = target.Character:FindFirstChild("Head")
+		if not head then return end
+		
+		local tool = me.Character and me.Character:FindFirstChildOfClass("Tool")
+		if not tool then return end
+		
+		local values = tool:FindFirstChild("Values")
+		local hitMarker = tool:FindFirstChild("Hitmarker")
+		if not values or not hitMarker then return end
+		
+		local ammo = values:FindFirstChild("SERVER_Ammo")
+		local storedAmmo = values:FindFirstChild("SERVER_StoredAmmo")
+		if not ammo or not storedAmmo then return end
+		
+		local hitPosition = head.Position
+		local hitDirection = (hitPosition - camera.CFrame.Position).unit
+		local randomKey = RandomString(30) ..0
+		
+		if tool.Name == "Beretta" or tool.Name == "TEC-9" then
+			if ammo.Value > 0 then
+				rp.Events.GNX_S:FireServer(
+					tick(),
+					randomKey,
+					tool,
+					"FDS9I83",
+					camera.CFrame.Position,
+					{hitDirection},
+					false
+				)
+				
+				task.delay(0.00001, function()
+					rp.Events["ZFKLF__H"]:FireServer(
+						"🧈",
+						tool,
+						randomKey,
+						1,
+						head,
+						hitPosition,
+						hitDirection
+					)
+					
+					ammo.Value = math.max(ammo.Value - 1, 0)
+					hitMarker:Fire(head)
+					storedAmmo.Value = values:FindFirstChild("SERVER_StoredAmmo").Value
+				end)
+			end
+		end
+	end
+	
+	local function RageBotLoop()
+		while functions.RageBot do
+			if me.Character and me.Character:FindFirstChildOfClass("Tool") then
+				local target = GetClosestEnemy()
+				if target then
+					Shoot(target)
+				end
+			end
+			run.RenderStepped:Wait()
+		end
+	end
+	RageBotLoop()
 end)
+local MakeRagebotDownedCheck = Buttons:MakeSectionCheckboxButton(MakeRagebotSection, "Check downed", "RageBot", "CheckDowned")
+local MakeRagebotTeamCheck = Buttons:MakeSectionCheckboxButton(MakeRagebotSection, "Check team", "RageBot", "CheckTeam")
+local MakeRagebotWhiteListCheck = Buttons:MakeSectionCheckboxButton(MakeRagebotSection, "Check white list", "RageBot", "CheckWhiteList")
 
-local MakeTrigerbotSection = Frames:MakeSection(_LeftBoxMainMenu)
+--[[local MakeTrigerbotSection = Frames:MakeSection(_LeftBoxMainMenu)
 local TrigerBot = Buttons:MakeSectionDefaultButton(MakeTrigerbotSection, "Triger bot", "TrigerBot", false, function()
 	-- later
-end)
+end)]]
 
-local MakeRocketControlSection = Frames:MakeSection(_RightBoxManMenu)
+--[[local MakeRocketControlSection = Frames:MakeSection(_RightBoxManMenu)
 local RocketControl = Buttons:MakeSectionDefaultButton(MakeRocketControlSection, "Rocket control", "RocketControl", false, function()
-	
-end)
+	-- later
+end)]]
 
 local MakeInstantReloadButton = Buttons:MakeDefaultButton(_LeftBoxMainMenu, "Instant reload", "Instantreload", false, function()
 	local gunR_remote = game:GetService("ReplicatedStorage").Events.GNX_R
@@ -1995,15 +2604,89 @@ end)
 --// VISUAL \\--
 local MakeEspSection = Frames:MakeSection(_LeftBoxVisual)
 local Esp = Buttons:MakeSectionDefaultButton(MakeEspSection, "ESP", "ESP", false, function()
-	-- later
+	if functions.ESP then
+		RUNS.ESP = run.Heartbeat:Connect(function()
+			if SectionSettings.ESP.Highlight then
+				local function Update()
+					for _, a in pairs(plrs:GetPlayers()) do
+						if a ~= me then
+							local char = a.Character
+							if char and not char:FindFirstChild("Highlight") then
+								local hg = Instance.new("Highlight")
+								hg.Parent = char
+								hg.FillTransparency = 1
+							end
+						end
+					end
+				end
+				Update()
+				
+				plrs.PlayerAdded:Connect(function(player)
+					if functions.ESP then
+						local char = player.Character or player.CharacterAdded:Wait()
+						if char and SectionSettings.ESP.Highlight and not char:FindFirstChild("Highlight") then
+							local hg = Instance.new("Highlight")
+							hg.Parent = char
+							hg.FillTransparency = 1
+						end
+					end
+				end)
+			else
+				for _, a in pairs(plrs:GetPlayers()) do
+					if a ~= me then
+						local char = a.Character
+						if char then
+							local h = char:FindFirstChild("Highlight")
+							if h then h:Destroy() end
+						end
+					end
+				end
+			end
+		end)
+	else
+		if RUNS.ESP then
+			RUNS.ESP:Disconnect()
+			RUNS.ESP = nil
+		end
+		for _, a in pairs(plrs:GetPlayers()) do
+			if a ~= me then
+				local char = a.Character
+				if char then
+					local h = char:FindFirstChild("Highlight")
+					if h then h:Destroy() end
+				end
+			end
+		end
+	end
 end)
+--local MakeESPName = Buttons:MakeSectionCheckboxButton(MakeEspSection, "Name", "ESP", "Name")
+--local MakeESPBox = Buttons:MakeSectionCheckboxButton(MakeEspSection, "Box", "ESP", "Box")
+local MakeESPHighlight = Buttons:MakeSectionCheckboxButton(MakeEspSection, "Highlight", "ESP", "Highlight")
 
 local MakeArmsChams = Buttons:MakeDefaultButton(_RightBoxVisual, "Arms chams", "ArmsChams", false, function()
-	-- later
+	local viewfolder = camera:WaitForChild("ViewModel")
+	if functions.ArmsChams == true then
+		viewfolder["Left Arm"].Material = Enum.Material.ForceField
+		viewfolder["Right Arm"].Material = Enum.Material.ForceField
+	else
+		viewfolder["Left Arm"].Material = Enum.Material.Plastic
+		viewfolder["Right Arm"].Material = Enum.Material.Plastic
+	end
+	me.CharacterAdded:Connect(function(char)
+		repeat wait() until char and char.Parent
+		local viewfolder = camera:WaitForChild("ViewModel")
+		if functions.ArmsChams == true then
+			viewfolder["Left Arm"].Material = Enum.Material.ForceField
+			viewfolder["Right Arm"].Material = Enum.Material.ForceField
+		else
+			viewfolder["Left Arm"].Material = Enum.Material.Plastic
+			viewfolder["Right Arm"].Material = Enum.Material.Plastic
+		end
+	end)
 end)
-local MakeToolsChams = Buttons:MakeDefaultButton(_RightBoxVisual, "Tools chams", "ToolsChams", false, function()
+--[[local MakeToolsChams = Buttons:MakeDefaultButton(_RightBoxVisual, "Tools chams", "ToolsChams", false, function()
 	-- later
-end)
+end)]]
 
 dragging = false
 dragInput = nil
@@ -2018,7 +2701,7 @@ function UpdatePos(input)
 		startPos.Y.Scale,
 		startPos.Y.Offset + delta.Y
 	)
-
+	
 	local anim1 = tween:Create(Menu, TweenInfo.new(0.15), {Position = newPosition})
 	anim1:Play()
 end
@@ -2028,7 +2711,7 @@ dragg.InputBegan:Connect(function(input)
 		dragging = true
 		dragStart = input.Position
 		startPos = Menu.Position
-
+		
 		input.Changed:Connect(function()
 			if input.UserInputState == Enum.UserInputState.End then
 				dragging = false
