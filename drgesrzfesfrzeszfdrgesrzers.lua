@@ -2344,7 +2344,7 @@ local Meleeaura = Buttons:MakeSectionDefaultButton(MakeMeleeauraSection, "Melee 
 		end
 	end
 	
-	while functions.meleeauraF do
+	while functions.Meleeaura do
 		local mychar = me.Character or me.CharacterAdded:Wait()
 		if mychar then
 			local myhrp = mychar:FindFirstChild("HumanoidRootPart")
@@ -2494,6 +2494,7 @@ local RageBot = Buttons:MakeSectionDefaultButton(MakeRagebotSection, "Rage bot",
 					ammo.Value = math.max(ammo.Value - 1, 0)
 					hitMarker:Fire(head)
 					storedAmmo.Value = values:FindFirstChild("SERVER_StoredAmmo").Value
+					rp.Events.GNX_R:FireServer(tick(), "KLWE89U0", tool)
 				end)
 			end
 		end
@@ -2514,7 +2515,7 @@ local RageBot = Buttons:MakeSectionDefaultButton(MakeRagebotSection, "Rage bot",
 end)
 local MakeRagebotDownedCheck = Buttons:MakeSectionCheckboxButton(MakeRagebotSection, "Check downed", "RageBot", "CheckDowned")
 local MakeRagebotTeamCheck = Buttons:MakeSectionCheckboxButton(MakeRagebotSection, "Check team", "RageBot", "CheckTeam")
-local MakeRagebotWhiteListCheck = Buttons:MakeSectionCheckboxButton(MakeRagebotSection, "Check white list", "RageBot", "CheckWhiteList")
+--local MakeRagebotWhiteListCheck = Buttons:MakeSectionCheckboxButton(MakeRagebotSection, "Check white list", "RageBot", "CheckWhiteList")
 
 --[[local MakeTrigerbotSection = Frames:MakeSection(_LeftBoxMainMenu)
 local TrigerBot = Buttons:MakeSectionDefaultButton(MakeTrigerbotSection, "Triger bot", "TrigerBot", false, function()
@@ -2527,7 +2528,7 @@ local RocketControl = Buttons:MakeSectionDefaultButton(MakeRocketControlSection,
 end)]]
 
 local MakeInstantReloadButton = Buttons:MakeDefaultButton(_LeftBoxMainMenu, "Instant reload", "Instantreload", false, function()
-	local gunR_remote = game:GetService("ReplicatedStorage").Events.GNX_R
+	local gunR_remote = rp.Events.GNX_R
 	if functions.Instantreload then
 		local charme = me.Character
 		if charme then
