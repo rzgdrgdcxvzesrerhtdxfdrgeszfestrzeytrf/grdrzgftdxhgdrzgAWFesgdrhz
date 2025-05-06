@@ -72,6 +72,7 @@ local SectionSettings = {
 		CheckDowned = false,
 		CheckTeam = false,
 		CheckWhiteList = false,
+		Distance = 15,
 	},
 	RageBot = {
 		CheckDowned = false,
