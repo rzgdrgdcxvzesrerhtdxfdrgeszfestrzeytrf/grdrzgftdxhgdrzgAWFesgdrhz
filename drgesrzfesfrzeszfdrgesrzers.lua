@@ -69,6 +69,7 @@ local SectionSettings = {
 	},
 	MeleeAura = {
 		ShowAnim = false,
+		TargetParts = {"Head"},
 		CheckDowned = false,
 		CheckTeam = false,
 		CheckWhiteList = false,
@@ -76,7 +77,6 @@ local SectionSettings = {
 	},
 	RageBot = {
 		CheckDowned = false,
-		CheckTeam = false,
 		CheckWhiteList = false
 	},
 	ESP = {
@@ -110,6 +110,7 @@ local cockie = {
 	ESPHighlight = nil,
 	AimBotCircle = nil,
 	Aimbot_body = nil,
+	MeleeAura_body = nil,
 }
 
 local RUNS = {
@@ -2248,7 +2249,14 @@ local MakeAimbotDrawSizeSlider = Frames:MakeSectionSlider(MakeAimbotSection, "Si
 	end
 end)
 --local MakeAimbotColorWheelCircle = Buttons:MakeColorWheelSection(MakeAimbotDrawCircle)
-local MakeAimbotTargetPart = Buttons:MakeSectionPressButton(MakeAimbotSection, "Target part")
+local MakeAimbotTargetPart = Buttons:MakeSectionPressButton(MakeAimbotSection, "Target part", function()
+	if cockie.Aimbot_body then
+		cockie.Aimbot_body:Destroy()
+		cockie.Aimbot_body = nil
+	else
+		cockie.Aimbot_body = Frames:MakeBodySelector(SectionSettings.Aimbot.TargetParts)
+	end
+end)
 local MakeAimbotCheckDowned = Buttons:MakeSectionCheckboxButton(MakeAimbotSection, "Check downed", "Aimbot", "CheckDowned")
 local MakeAimbotCheckWall = Buttons:MakeSectionCheckboxButton(MakeAimbotSection, "Check wall", "Aimbot", "CheckWall")
 local MakeAimbotCheckteam = Buttons:MakeSectionCheckboxButton(MakeAimbotSection, "Check team", "Aimbot", "CheckTeam")
@@ -2371,7 +2379,7 @@ local Meleeaura = Buttons:MakeSectionDefaultButton(MakeMeleeauraSection, "Melee 
 										continue
 									end
 									
-									local count = #SectionSettings.MeleeAura.TargetPart
+									local count = #SectionSettings.MeleeAura.TargetParts
 									
 									if count == 0 then
 										part = "Head"
@@ -2398,7 +2406,14 @@ local Meleeaura = Buttons:MakeSectionDefaultButton(MakeMeleeauraSection, "Melee 
 	end
 end)
 local MakeMeleeAuraShowAnim = Buttons:MakeSectionCheckboxButton(MakeMeleeauraSection, "Show anim", "MeleeAura", "ShowAnim")
-local MakeMeleeAuraTargetPart = Buttons:MakeSectionPressButton(MakeMeleeauraSection, "Target parts")
+local MakeMeleeAuraTargetParts = Buttons:MakeSectionPressButton(MakeMeleeauraSection, "Target parts", function()
+	if cockie.MeleeAura_body then
+		cockie.MeleeAura_body:Destroy()
+		cockie.MeleeAura_body = nil
+	else
+		cockie.MeleeAura_body = Frames:MakeBodySelector(SectionSettings.MeleeAura.TargetParts)
+	end
+end)
 local MakeMeleeAuraCheckDowned = Buttons:MakeSectionCheckboxButton(MakeMeleeauraSection, "Check downed", "MeleeAura", "CheckDowned")
 local MakeMeleeAuraCheckTeam = Buttons:MakeSectionCheckboxButton(MakeMeleeauraSection, "Check team", "MeleeAura", "CheckTeam")
 --local MakeMeleeAuraCheckWhiteList = Buttons:MakeSectionCheckboxButton(MakeMeleeauraSection, "Check white list", "MeleeAura", "CheckWhiteList")
@@ -2515,7 +2530,6 @@ local RageBot = Buttons:MakeSectionDefaultButton(MakeRagebotSection, "Rage bot",
 	RageBotLoop()
 end)
 local MakeRagebotDownedCheck = Buttons:MakeSectionCheckboxButton(MakeRagebotSection, "Check downed", "RageBot", "CheckDowned")
-local MakeRagebotTeamCheck = Buttons:MakeSectionCheckboxButton(MakeRagebotSection, "Check team", "RageBot", "CheckTeam")
 --local MakeRagebotWhiteListCheck = Buttons:MakeSectionCheckboxButton(MakeRagebotSection, "Check white list", "RageBot", "CheckWhiteList")
 
 --[[local MakeTrigerbotSection = Frames:MakeSection(_LeftBoxMainMenu)
