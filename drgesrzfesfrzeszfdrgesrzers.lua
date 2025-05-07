@@ -2335,7 +2335,7 @@ local Meleeaura = Buttons:MakeSectionDefaultButton(MakeMeleeauraSection, "Melee 
 					true,
 					Handle,
 					target:FindFirstChild(part),
-					target or randpart,
+					target,
 					me.Character.HumanoidRootPart.Position,
 					target:FindFirstChild(part).Position
 				}
