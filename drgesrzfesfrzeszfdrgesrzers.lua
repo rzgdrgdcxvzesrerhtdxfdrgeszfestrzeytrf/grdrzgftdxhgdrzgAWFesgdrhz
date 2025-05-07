@@ -69,7 +69,7 @@ local SectionSettings = {
 	},
 	MeleeAura = {
 		ShowAnim = false,
-		TargetParts = {"Head"},
+		TargetParts = {},
 		CheckDowned = false,
 		CheckTeam = false,
 		CheckWhiteList = false,
@@ -2384,11 +2384,11 @@ local Meleeaura = Buttons:MakeSectionDefaultButton(MakeMeleeauraSection, "Melee 
 									if count == 0 then
 										part = "Head"
 									elseif count == 1 then
-										part = SectionSettings.MeleeAura.TargetPart[#SectionSettings.MeleeAura.TargetPart]
+										part = SectionSettings.MeleeAura.TargetParts[#SectionSettings.MeleeAura.TargetParts]
 									elseif count > 1 then
 										if tick() - LastTick >= .2 then
 											local rand = math.random(1, count)
-											randpart = SectionSettings.MeleeAura.TargetPart[rand]
+											randpart = SectionSettings.MeleeAura.TargetParts[rand]
 											LastTick = tick()
 										end
 										part = randpart or SectionSettings.MeleeAura.TargetPart[1]
