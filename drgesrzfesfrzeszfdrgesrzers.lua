@@ -2391,7 +2391,7 @@ local Meleeaura = Buttons:MakeSectionDefaultButton(MakeMeleeauraSection, "Melee 
 											randpart = SectionSettings.MeleeAura.TargetParts[rand]
 											LastTick = tick()
 										end
-										part = randpart or SectionSettings.MeleeAura.TargetPart[1]
+										part = randpart or SectionSettings.MeleeAura.TargetParts[1]
 									end
 									
 									Attack(char)
