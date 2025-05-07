@@ -2334,10 +2334,10 @@ local Meleeaura = Buttons:MakeSectionDefaultButton(MakeMeleeauraSection, "Melee 
 					result,
 					true,
 					Handle,
-					part,
+					target:FindFirstChild(part),
 					target or randpart,
 					me.Character.HumanoidRootPart.Position,
-					part.Position or randpart.Position
+					target:FindFirstChild(part).Position
 				}
 				if TOOL.Name == "Chainsaw" then
 					for i = 1, 15 do
