@@ -1816,6 +1816,16 @@ end)
 local MakeSilentaimSection = Frames:MakeSection(_LeftBoxMainMenu)
 local SilentAim = Buttons:MakeSectionDefaultButton(MakeSilentaimSection, "Silent aim", "SilentAim", function()
 	if functions.SilentAim then
+		cockie.SilentAimCircle = Drawing.new("Circle")
+		cockie.SilentAimCircle.Color = Color3.new(1, 1, 1)
+		cockie.SilentAimCircle.Thickness = 2
+		cockie.SilentAimCircle.NumSides = 50
+		cockie.SilentAimCircle.Radius = SectionSettings.SilentAim.DrawSize
+		cockie.SilentAimCircle.Filled = false
+		cockie.SilentAimCircle.Visible = true
+		
+		cockie.SilentAimCircle.Position = Vector2.new(camera.ViewportSize.X/2, camera.ViewportSize.Y/2)
+		
 		local target = nil
 		
 		local function GetClosest()
@@ -1857,9 +1867,7 @@ local SilentAim = Buttons:MakeSectionDefaultButton(MakeSilentaimSection, "Silent
 									continue
 								end
 							end]]
-							
-							local mousePos = input:GetMouseLocation()
-							local dist = (Vector2.new(mousePos.X, mousePos.Y) - Vector2.new(screenpos.X, screenpos.Y)).Magnitude
+							local dist = (Vector2.new(camera.ViewportSize.X/2, camera.ViewportSize.Y/2) - Vector2.new(screenpos.X, screenpos.Y)).Magnitude
 							if dist < shortest then
 								target = a
 							end
@@ -1897,29 +1905,6 @@ local SilentAim = Buttons:MakeSectionDefaultButton(MakeSilentaimSection, "Silent
 				Gun.Hitmarker:Fire(targetPart)
 			end
 		end)
-		
-		while functions.SilentAim do
-			if SectionSettings.SilentAim.Draw then
-				if not cockie.SilentAimCircle then
-					cockie.SilentAimCircle = Drawing.new("Circle")
-					cockie.SilentAimCircle.Color = Color3.new(1, 1, 1)
-					cockie.SilentAimCircle.Filled = false
-					cockie.SilentAimCircle.Radius = SectionSettings.SilentAim.DrawSize
-					cockie.SilentAimCircle.Thickness = 1
-				end
-			else
-				if cockie.SilentAimCircle then
-					cockie.SilentAimCircle:Remove()
-					cockie.SilentAimCircle = nil
-				end
-			end
-			
-			if SectionSettings.SilentAim.Draw and cockie.SilentAimCircle then
-				local mousePos = input:GetMouseLocation()
-				cockie.SilentAimCircle.Position = Vector2.new(mousePos.X, mousePos.Y)
-			end
-			run.Heartbeat:Wait()
-		end
 	else
 		if cockie.SilentAimCircle then
 			cockie.SilentAimCircle:Remove()
@@ -1927,7 +1912,7 @@ local SilentAim = Buttons:MakeSectionDefaultButton(MakeSilentaimSection, "Silent
 		end
 	end
 end)
-local MakeSilentAimDrawCircle = Buttons:MakeSectionCheckboxButton(MakeSilentaimSection, "Draw circle", "SilentAim", "Draw")
+--local MakeSilentAimDrawCircle = Buttons:MakeSectionCheckboxButton(MakeSilentaimSection, "Draw circle", "SilentAim", "Draw")
 local MakeSilentAimDrawSizeSlider = Frames:MakeSectionSlider(MakeSilentaimSection, "Size", SectionSettings.SilentAim.DrawSize, 20, 500, function(val)
 	SectionSettings.SilentAim.DrawSize = math.floor(val)
 	if cockie.SilentAimCircle then
@@ -1988,10 +1973,10 @@ local Aimbot = Buttons:MakeSectionDefaultButton(MakeAimbotSection, "Aim bot", "A
 		local LastTick = tick()
 		
 		cockie.AimBotCircle = Drawing.new("Circle")
-		cockie.AimBotCircle = Color3.fromRGB(255, 0, 0)
+		cockie.AimBotCircle.Color = Color3.new(1, 1, 1)
 		cockie.AimBotCircle.Thickness = 2
 		cockie.AimBotCircle.NumSides = 50
-		cockie.AimBotCircle.Radius = SectionSettings.AimBot.DrawSize
+		cockie.AimBotCircle.Radius = SectionSettings.Aimbot.DrawSize
 		cockie.AimBotCircle.Filled = false
 		cockie.AimBotCircle.Visible = true
 		
@@ -2105,7 +2090,7 @@ local MakeAimbotSmoothSize = Frames:MakeSectionSlider(MakeAimbotSection, "Size",
 end)
 
 local MakeMeleeauraSection = Frames:MakeSection(_LeftBoxMainMenu)
-local Meleeaura = Buttons:MakeSectionDefaultButton(MakeMeleeauraSection, "Melee aura", "Meleeaura", "Meleeaura", function()
+local Meleeaura = Buttons:MakeSectionDefaultButton(MakeMeleeauraSection, "Melee aura", "Meleeaura", function()
 	local remote1 = rp.Events["XMHH.2"]
 	local remote2 = rp.Events["XMHH2.2"]
 	
@@ -2257,7 +2242,7 @@ local MakeMeleeAuraCheckTeam = Buttons:MakeSectionCheckboxButton(MakeMeleeauraSe
 --local MakeMeleeAuraCheckWhiteList = Buttons:MakeSectionCheckboxButton(MakeMeleeauraSection, "Check white list", "MeleeAura", "CheckWhiteList")
 
 local MakeRagebotSection = Frames:MakeSection(_RightBoxManMenu)
-local RageBot = Buttons:MakeSectionDefaultButton(MakeRagebotSection, "Rage bot", "RageBot", "RageBot", function()
+local RageBot = Buttons:MakeSectionDefaultButton(MakeRagebotSection, "Rage bot", "RageBot", function()
 	local function RandomString(length)
 		local res = ""
 		for i = 1, length do
@@ -2371,12 +2356,12 @@ local MakeRagebotDownedCheck = Buttons:MakeSectionCheckboxButton(MakeRagebotSect
 --local MakeRagebotWhiteListCheck = Buttons:MakeSectionCheckboxButton(MakeRagebotSection, "Check white list", "RageBot", "CheckWhiteList")
 
 --[[local MakeTrigerbotSection = Frames:MakeSection(_LeftBoxMainMenu)
-local TrigerBot = Buttons:MakeSectionDefaultButton(MakeTrigerbotSection, "Triger bot", "TrigerBot", false, function()
+local TrigerBot = Buttons:MakeSectionDefaultButton(MakeTrigerbotSection, "Triger bot", "TrigerBot", function()
 	-- later
 end)]]
 
 --[[local MakeRocketControlSection = Frames:MakeSection(_RightBoxManMenu)
-local RocketControl = Buttons:MakeSectionDefaultButton(MakeRocketControlSection, "Rocket control", "RocketControl", false, function()
+local RocketControl = Buttons:MakeSectionDefaultButton(MakeRocketControlSection, "Rocket control", "RocketControl", function()
 	-- later
 end)]]
 
