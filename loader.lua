@@ -25,8 +25,10 @@ if body1 then
 	end
 	if _G.LS then
 		_G.LS(game:HttpGet(body1.url))()
+		_G.AW("loaded")
 	else
 		loadstring(game:HttpGet(body1.url))()
+		_G.AW("loaded")
 	end
 end
 
